@@ -24,7 +24,7 @@ export default function Stats() {
   return (
     <>
     <div className='min-h-screen max-w-6xl mx-auto'>
-    <h1 className='text-2xl p-1 font-bold'>Team Stat</h1>
+    <h1 className='text-xl p-1 font-bold'>Team Squad</h1>
       <div className='flex flex-wrap justify-center p-2 gap-3'>
      {
         stats.map((stat) => (

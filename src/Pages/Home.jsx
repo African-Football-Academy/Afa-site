@@ -224,9 +224,9 @@ export default function Home() {
               <source src={vid1} />
            </video>
            <div className='mx-auto flex-1'>
-            <div className='mx-auto'>
-              <p className='uppercase font-bold text-xl text-white text-center'>Champion Regional du littoral</p>
-              <p className='uppercase font-bold text-sm text-blue-300 text-center'>African Football Academy</p>
+            <div className='mx-auto mt-2'>
+              <p className='uppercase font-bold text-sm text-white text-center'>Champion Regional du littoral</p>
+              <p className='uppercase font-bold text-xs text-blue-300 text-center'>African Football Academy</p>
             </div>
            </div>
         </div>

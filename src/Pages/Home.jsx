@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import imgHERO from '../img/AFRICAN FOOTBALL  ACADEMY.png'
 import img2 from '../img/icon1.png'
 import img3 from '../img/afa champion.jpg'
 import img5 from '../img/afa u12.jpg'
@@ -112,7 +113,8 @@ export default function Home() {
           transition={{ duration: 1 }}
           className='flex-1'
           >
-            <h1 className='text-3xl font-bold text-center text-blue-500 uppercase'>{head.hero_title}</h1>
+            {/*<h1 className='text-3xl font-bold text-center text-blue-500 uppercase'>{head.hero_title}</h1>*/}
+            <img src={imgHERO} alt="hero" width={400} className='mx-auto'/>
             <p className='text-justify text-white mx-auto md:w-[490px] mb-2'>
               {head.hero_desc}
             </p>
@@ -144,7 +146,7 @@ export default function Home() {
         transition={{ duration: 0.5 }}
         className='flex flex-wrap justify-center gap-2 max-w-7xl w-full relative mx-auto'
         >
-           <div className="flex sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-3 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl hover:scale-110">
+           <div className="flex sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-3 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
            <img src={imgj} width={90} className='rounded-full'/>
              <div>
              <h1 className='text-sm text-red-600 font-bold uppercase'>
@@ -153,7 +155,7 @@ export default function Home() {
              <p className='text-xs'>Révélateurs de talents, toutes catégories confondues</p>
              </div>
            </div>
-           <div className="flex sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-3 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl hover:scale-110">
+           <div className="flex sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-3 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
              <img src={img2} width={90} className='rounded-full'/>
               <div>
              <h1 className='text-sm text-red-600 font-bold uppercase'>
@@ -162,7 +164,7 @@ export default function Home() {
              <p className='text-xs'>Nos joueurs sont polyvalents et sont tous disciplines</p>
              </div>
            </div>
-           <div className="flex sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-4 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl hover:scale-110">
+           <div className="flex sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-4 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
              <HiTrophy color='blue' size={60} />
               <div>
              <h1 className='text-sm text-red-600 font-bold uppercase'>
@@ -171,7 +173,7 @@ export default function Home() {
              <p className='text-xs'>Nous sommes engagés dans différents championnats</p>
              </div>
            </div>
-           <div className="flex sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto  p-4 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl hover:scale-110">
+           <div className="flex sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto  p-4 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
            <img src={imgl} width={70} className='rounded-full'/>
               <div>
              <h1 className='text-sm text-red-600 font-bold uppercase'>

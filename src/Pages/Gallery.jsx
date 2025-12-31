@@ -42,12 +42,10 @@ export default function Gallery() {
            gallery.map((gall) => (          
             <motion.span
             key={gall.$id}
-            whileHover={{ rotate: 360 }}
-            transition={{ duration: 1 }}
             className='mx-auto w-72 hover:bg-white hover:h-fit p-8 rounded-2xl '
             >
-              <img src={gall.img} alt="" width={500} height={500} className='hover:scale-110 rounded-3xl border-2 border-dashed border-red-200 p-1 rotate-6' />
-              <p className='rotate-6'>{gall.title}</p>
+              <img src={gall.img} alt="" width={500} height={500} className='rounded-3xl border-red-200 p-1 rotate-6' />
+              <p className='rotate-6 text-xs font-medium uppercase'>{gall.title}</p>
             </motion.span>
         ))}
         </motion.div>

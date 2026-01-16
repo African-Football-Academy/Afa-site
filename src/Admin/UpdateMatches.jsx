@@ -209,13 +209,6 @@ const handleUpdate = async (e) => {
                     value={matchdetail.home_name}
                     onChange={(e) => setMatchdetail({...matchdetail, home_name: e.target.value})}
                     />
-                    <h1 className='text-sm text-gray-400'>Home Coach</h1>
-                    <TextInput type='text'
-                    placeholder='Home Coach'
-                    className='mb-3'
-                    value={matchdetail.home_coach}
-                    onChange={(e) => setMatchdetail({...matchdetail, home_coach: e.target.value})}
-                    />
                       <div className='border-4 border-teal-500 border-dotted p-3 mb-2'>
                          <FileInput type='file'
                             accept='image/*'
@@ -227,20 +220,6 @@ const handleUpdate = async (e) => {
                         className='mb-3'
                         value={matchdetail.away_name}
                         onChange={(e) => setMatchdetail({...matchdetail, away_name: e.target.value})}
-                    />
-                    <h1 className='text-sm text-gray-400'>Away Coach</h1>
-                    <TextInput type='text'
-                        placeholder='Away Coach'
-                        className='mb-3'
-                        value={matchdetail.away_coach}
-                        onChange={(e) => setMatchdetail({...matchdetail, away_coach: e.target.value})}
-                    />
-                    <h1 className='text-sm text-gray-400'>Arbitre</h1>
-                    <TextInput type='text'
-                    placeholder='Arbitre'
-                    className='mb-3'
-                    value={matchdetail.arbitre}
-                    onChange={(e) => setMatchdetail({...matchdetail, arbitre: e.target.value})}
                     />
                     <h1 className='text-sm text-gray-400'>stade</h1>
                     <TextInput type='text'

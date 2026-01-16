@@ -46,8 +46,6 @@ export default function Matchdetail() {
                     </span>
         </div>
         <div className='mx-auto text-center'>
-                    <h1 className='text-sm font-semibold text-blue-400'>Arbitre</h1>
-                    <p className='font-bold text-gray-500'>{match?.arbitre}</p>
                     <p className='text-black font-bold text-sm'>{match?.stade}</p>
                     <p className='font-semibold text-gray-400'>{match?.date} | {match?.time}</p>
         </div>

@@ -56,20 +56,6 @@ export default function Matchdetail() {
             <h1 className='font-semibold'>Category</h1>
             <p className='ml-3 text-gray-500'>{match?.category}</p>
           </div>
-          <div className='p-4'>
-            <h1 className='font-semibold'>Ticket</h1>
-            <p className='ml-3 text-gray-500'>{match?.ticket}</p>
-          </div>
-        </div>
-        <div className='flex justify-between w-80 mx-auto'>
-          <div className='p-4'>
-            <h1 className='font-semibold'>{match?.home_name} Coach</h1>
-            <p className='text-gray-500'>{match?.home_coach}</p>
-          </div>
-          <div className='p-4'>
-            <h1 className='font-semibold'>{match?.away_name} Coach</h1>
-            <p className='text-gray-500'>{match?.away_coach}</p>
-          </div>
         </div>
     </div>
     </div>

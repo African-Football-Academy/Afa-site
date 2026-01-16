@@ -35,7 +35,7 @@ export default function Matchdetail() {
         <div className='flex justify-between items-center p-3 gap-4 max-w-xl mx-auto'>
                     <span className=''>
                         <img src={match?.home_team} width={200} className='rounded-2xl mx-auto w-40' />
-                        <p className='text-center uppercase text-sm font-bold w-full'>{match?.home_name}</p>
+                        <p className='text-center uppercase text-sm font-bold w-full line-clamp-1'>{match?.home_name}</p>
                     </span>
                     <span className='text-4xl'>
                         -

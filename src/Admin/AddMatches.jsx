@@ -128,20 +128,16 @@ const handleSubmit = async (e) => {
                 stade,
                 time,
                 date,
-                arbitre,
                 category,
-                ticket,
                 home_name,
                 away_name,
                 home_team: homeimage,
                 away_team: awayimage,
-                home_coach,
-                away_coach,
                 createdAt: new Date().toISOString()
             }
         );
 
-        toast.success('Match added successfully!!!');
+        toast.success('Match reussi....!!!');
     } catch (err) {
         toast.error('Failed: ' + err.message);
     } finally {
@@ -210,34 +206,10 @@ const handleSubmit = async (e) => {
           onChange={(e) => setTime(e.target.value)}
         />
         <TextInput type='text'
-          placeholder='Arbitre'
-          className='mb-3'
-          value={arbitre}
-          onChange={(e) => setArbitre(e.target.value)}
-        />
-        <TextInput type='text'
           placeholder='Category'
           className='mb-3'
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-        />
-        <TextInput type='text'
-          placeholder='Ticket'
-          className='mb-3'
-          value={ticket}
-          onChange={(e) => setTicket(e.target.value)}
-        />
-        <TextInput type='text'
-          placeholder='Home Coach'
-          className='mb-3'
-          value={home_coach}
-          onChange={(e) => setHome_coach(e.target.value)}
-        />
-        <TextInput type='text'
-          placeholder='Away coach'
-          className='mb-3'
-          value={away_coach}
-          onChange={(e) => setAway_coach(e.target.value)}
         />
         <div className='flex md:flex-row flex-col gap-2 mx-auto items-center'>
                <span>

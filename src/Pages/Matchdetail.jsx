@@ -42,7 +42,7 @@ export default function Matchdetail() {
                     </span>
                     <span className=''>
                         <img src={match?.away_team} width={200} className='rounded-2xl mx-auto w-40' />
-                        <p className='text-center uppercase text-sm font-bold w-32'>{match?.away_name}</p>
+                        <p className='text-center uppercase text-sm font-bold w-32 line-clamp-1'>{match?.away_name}</p>
                     </span>
         </div>
         <div className='mx-auto text-center'>

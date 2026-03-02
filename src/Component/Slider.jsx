@@ -15,7 +15,7 @@ const SimpleSlider = () => {
           '67b7400000011dbf91e6',
           '67b74017001ae7cc6a35',
           [
-            Query.limit(3),
+            Query.limit(4),
             Query.orderDesc('createdAt')
           ]
         );

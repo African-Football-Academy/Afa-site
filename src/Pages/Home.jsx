@@ -20,44 +20,7 @@ import { databases } from '../AppwriteConfig'
 import { Query } from 'appwrite'
 import StatBanner from '../Component/StatBanner'
 
-const cards = [
-  {
-    id: 1,
-    icon: "🌟",
-    label: "Talents",
-    desc: "Révélateurs de talents, toutes catégories confondues",
-    accent: "#FF3B3B",
-    glow: "rgba(255,59,59,0.3)",
-  },
-  {
-    id: 2,
-    icon: "⚽",
-    label: "Joueurs",
-    desc: "Nos joueurs sont polyvalents et sont tous disciplinés",
-    accent: "#3B8FFF",
-    glow: "rgba(59,143,255,0.3)",
-  },
-  {
-    id: 3,
-    icon: "🏆",
-    label: "Championnat",
-    desc: "Nous sommes engagés dans différents championnats",
-    accent: "#FFB800",
-    glow: "rgba(255,184,0,0.3)",
-  },
-  {
-    id: 4,
-    icon: "🎓",
-    label: "Formation",
-    desc: "Nous avons une équipe d'experts pour vous guider",
-    accent: "#00D68F",
-    glow: "rgba(0,214,143,0.3)",
-  },
-];
-
 export default function Home() {
-
-  const [hovered, setHovered] = useState(null);
 
   const [ partenaire, setPartenaire] = useState([])
   const [category, setCategory] = useState([])
@@ -177,207 +140,49 @@ export default function Home() {
         </div>
           ))
         }
-         <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #0a0e1a 0%, #111827 60%, #0d1525 100%)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "2rem",
-      fontFamily: "'Bebas Neue', 'Impact', sans-serif",
-    }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&display=swap');
-
-        @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes shimmer {
-          0%   { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes pulse-ring {
-          0%   { transform: scale(0.95); opacity: 0.6; }
-          70%  { transform: scale(1.08); opacity: 0; }
-          100% { transform: scale(0.95); opacity: 0; }
-        }
-
-        .sport-card {
-          position: relative;
-          width: 280px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 20px;
-          padding: 28px 24px;
-          cursor: pointer;
-          overflow: hidden;
-          transition: transform 0.3s cubic-bezier(.22,.68,0,1.2), box-shadow 0.3s ease, border-color 0.3s ease;
-          animation: fadeSlideUp 0.5s ease both;
-          backdrop-filter: blur(10px);
-        }
-
-        .sport-card:hover {
-          transform: translateY(-8px) scale(1.02);
-        }
-
-        .sport-card::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          border-radius: 20px;
-          background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent);
-        }
-        .sport-card:hover::before { opacity: 1; }
-
-        .card-stripe {
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 3px;
-          border-radius: 20px 20px 0 0;
-          transition: height 0.3s ease;
-        }
-        .sport-card:hover .card-stripe { height: 4px; }
-
-        .icon-wrap {
-          width: 64px;
-          height: 64px;
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 2rem;
-          margin-bottom: 18px;
-          position: relative;
-          transition: transform 0.3s ease;
-        }
-        .sport-card:hover .icon-wrap { transform: scale(1.1) rotate(-4deg); }
-
-        .pulse-ring {
-          position: absolute;
-          inset: -4px;
-          border-radius: 20px;
-          border: 2px solid;
-          animation: pulse-ring 2s ease-out infinite;
-        }
-
-        .card-label {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 1.5rem;
-          letter-spacing: 0.1em;
-          margin-bottom: 8px;
-          background: linear-gradient(90deg, #ffffff, rgba(255,255,255,0.7), #ffffff);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .sport-card:hover .card-label {
-          animation: shimmer 1.5s linear infinite;
-        }
-
-        .card-desc {
-          font-family: 'Barlow', sans-serif;
-          font-size: 0.8rem;
-          font-weight: 400;
-          color: rgba(255,255,255,0.5);
-          line-height: 1.5;
-          transition: color 0.3s;
-        }
-        .sport-card:hover .card-desc { color: rgba(255,255,255,0.75); }
-
-        .card-arrow {
-          position: absolute;
-          bottom: 22px; right: 22px;
-          width: 28px; height: 28px;
-          border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 0.75rem;
-          opacity: 0;
-          transform: translateX(-6px);
-          transition: opacity 0.25s, transform 0.25s;
-        }
-        .sport-card:hover .card-arrow {
-          opacity: 1;
-          transform: translateX(0);
-        }
-
-        .grid-wrap {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 20px;
-          justify-content: center;
-          max-width: 1200px;
-        }
-      `}</style>
-
-      <div className="grid-wrap">
-        {cards.map((card, i) => (
-          <div
-            key={card.id}
-            className="sport-card"
-            style={{
-              animationDelay: `${i * 0.1}s`,
-              boxShadow: hovered === card.id
-                ? `0 20px 60px ${card.glow}, 0 0 0 1px ${card.accent}40`
-                : "0 4px 24px rgba(0,0,0,0.4)",
-              borderColor: hovered === card.id ? `${card.accent}60` : "rgba(255,255,255,0.08)",
-            }}
-            onMouseEnter={() => setHovered(card.id)}
-            onMouseLeave={() => setHovered(null)}
-          >
-            {/* Top stripe */}
-            <div
-              className="card-stripe"
-              style={{ background: `linear-gradient(90deg, ${card.accent}, transparent)` }}
-            />
-
-            {/* Icon */}
-            <div
-              className="icon-wrap"
-              style={{ background: `${card.accent}18`, border: `1px solid ${card.accent}30` }}
-            >
-              {hovered === card.id && (
-                <div className="pulse-ring" style={{ borderColor: card.accent }} />
-              )}
-              <span>{card.icon}</span>
-            </div>
-
-            {/* Text */}
-            <div
-              className="card-label"
-              style={{ color: card.accent }}
-            >
-              {card.label}
-            </div>
-            <p className="card-desc">{card.desc}</p>
-
-            {/* Arrow */}
-            <div
-              className="card-arrow"
-              style={{ background: `${card.accent}22`, color: card.accent }}
-            >
-              →
-            </div>
-
-            {/* Corner number */}
-            <div style={{
-              position: "absolute",
-              top: 16, right: 16,
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: "2.5rem",
-              color: "rgba(255,255,255,0.04)",
-              lineHeight: 1,
-              userSelect: "none",
-            }}>
-              0{i + 1}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+        <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className='flex flex-wrap justify-center gap-2 max-w-7xl w-full relative mx-auto'
+        >
+           <div className="flex rounded-md sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-3 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
+           <img src={imgj} width={90} className='rounded-full'/>
+             <div>
+             <h1 className='text-sm text-red-600 font-bold uppercase'>
+              Talents
+             </h1>
+             <p className='text-xs'>Révélateurs de talents, toutes catégories confondues</p>
+             </div>
+           </div>
+           <div className="flex rounded-md sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-3 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
+             <img src={img2} width={90} className='rounded-full'/>
+              <div>
+             <h1 className='text-sm text-red-600 font-bold uppercase'>
+             Joueurs
+             </h1>
+             <p className='text-xs'>Nos joueurs sont polyvalents et sont tous disciplines</p>
+             </div>
+           </div>
+           <div className="flex rounded-md sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-4 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
+             <HiTrophy color='blue' size={60} />
+              <div>
+             <h1 className='text-sm text-red-600 font-bold uppercase'>
+             Championnat
+             </h1>
+             <p className='text-xs'>Nous sommes engagés dans différents championnats</p>
+             </div>
+           </div>
+           <div className="flex rounded-md sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto  p-4 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
+           <img src={imgl} width={70} className='rounded-full'/>
+              <div>
+             <h1 className='text-sm text-red-600 font-bold uppercase'>
+             Formation
+             </h1>
+             <p className='text-xs'>Nous avons un equipe d'expert pour les guide</p>
+             </div>
+           </div>
+        </motion.div>
         <motion.h1
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}

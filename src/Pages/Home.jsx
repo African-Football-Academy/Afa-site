@@ -254,42 +254,142 @@ export default function Home() {
       </div>
 
       {/* ── CHAMPION VIDEO BLOCK ──────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden bg-blue-900 py-16">
-        <div className="absolute inset-0 opacity-10"
-             style={{ background: 'linear-gradient(45deg, #fff 0%, transparent 50%)', backgroundSize: '20px 20px' }} />
-        <div className="relative max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="rounded-2xl overflow-hidden shadow-2xl ring-2 ring-white/10"
-          >
-            <video autoPlay loop muted className="w-full h-64 md:h-80 object-cover">
+      <div className="relative overflow-hidden bg-gray-950 py-20">
+
+      {/* ── Background layers ── */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-950 via-gray-950 to-gray-950" />
+
+      {/* Diagonal stripe accent */}
+      <div className="absolute inset-0 opacity-[0.04]"
+           style={{
+             backgroundImage: 'repeating-linear-gradient(-55deg, #fff 0px, #fff 1px, transparent 1px, transparent 60px)',
+           }} />
+
+      {/* Left edge glow */}
+      <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-transparent via-red-500 to-transparent opacity-60" />
+
+      {/* Radial glow behind video */}
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
+
+      {/* ── Content ── */}
+      <div className="relative z-10 max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+
+        {/* Video */}
+        <motion.div
+          initial={{ opacity: 0, x: -60 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="relative group"
+        >
+          {/* Glow frame */}
+          <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-blue-600/30 via-red-500/20 to-transparent blur-lg group-hover:blur-xl transition-all duration-500" />
+
+          <div className="relative rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
+            {/* Top accent */}
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-500 via-blue-400 to-transparent z-10" />
+
+            <video
+              autoPlay
+              loop
+              muted
+              className="w-full h-64 md:h-80 object-cover"
+            >
               <source src={vid1} />
             </video>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-white"
-          >
-            <div className="inline-block bg-red-600 text-white text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
-              🏆 Titre Régional
+
+            {/* Overlay shimmer */}
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-950/60 via-transparent to-transparent" />
+
+            {/* Trophy watermark on video */}
+            <div className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center">
+              <HiTrophy size={18} className="text-yellow-400" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-black uppercase leading-tight mb-3">
-              Champion Régional<br />
-              <span className="text-blue-300">du Littoral</span>
-            </h2>
-            <p className="text-blue-200 text-sm tracking-widest uppercase font-semibold">
+          </div>
+        </motion.div>
+
+        {/* Text */}
+        <motion.div
+          initial={{ opacity: 0, x: 60 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="flex flex-col gap-5"
+        >
+          {/* Badge */}
+          <div className="flex items-center gap-3">
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: 'spring', stiffness: 200, delay: 0.4 }}
+              className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg shadow-yellow-500/30 flex-shrink-0"
+            >
+              <HiTrophy size={22} className="text-white" />
+            </motion.div>
+            <div className="inline-flex items-center gap-2 bg-red-600/90 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow border border-red-400/20">
+              <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+              Titre Régional
+            </div>
+          </div>
+
+          {/* Title */}
+          <div>
+            <motion.h2
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.35 }}
+              className="text-white font-black text-4xl md:text-5xl uppercase leading-[1.05] tracking-tight"
+            >
+              Champion<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">
+                Régional
+              </span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.45 }}
+              className="text-gray-400 text-sm uppercase tracking-[0.2em] font-semibold mt-1"
+            >
+              du Littoral
+            </motion.p>
+          </div>
+
+          {/* Divider */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.55, duration: 0.5 }}
+            className="origin-left w-full h-px bg-gradient-to-r from-red-500/60 via-blue-600/40 to-transparent"
+          />
+
+          {/* Club name */}
+          <div className="flex items-center gap-3">
+            <span className="block w-1 h-7 rounded-full bg-red-500" />
+            <p className="text-blue-300 text-xs font-black uppercase tracking-[0.25em]">
               African Football Academy
             </p>
-            <div className="mt-6 w-16 h-1 bg-red-500 rounded-full" />
-          </motion.div>
-        </div>
+          </div>
+
+          {/* Stats row */}
+          <div className="flex gap-4 mt-2">
+            {[
+              { value: '1er', label: 'Région Littoral' },
+              { value: '🏆', label: 'Titre Officiel' },
+            ].map(({ value, label }) => (
+              <div key={label} className="flex-1 bg-blue-950/60 border border-blue-800/40 rounded-xl p-3 text-center">
+                <p className="text-white font-black text-xl">{value}</p>
+                <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
+    </div>
 
       {/* ── HIGHLIGHT MEDIA ───────────────────────────────────────────────────── */}
       <div className="py-4 bg-white">

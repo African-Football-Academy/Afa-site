@@ -68,7 +68,7 @@ export default function Header() {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? 'bg-blue-950/95 backdrop-blur-md shadow-xl shadow-blue-950/40 border-b border-blue-800/50'
-            : 'bg-gradient-to-b from-blue-950/90 to-transparent backdrop-blur-sm'
+            : 'bg-gradient-to-b from-blue-950/90 to-blue-400 backdrop-blur-sm'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">

@@ -9,7 +9,6 @@ import imgj from '../img/jessey.png'
 import imgl from '../img/lineup.png'
 import vid1 from '../img/afa trophy.mp4'
 import { HiTrophy } from "react-icons/hi2"
-import { Button} from 'flowbite-react'
 import { motion } from 'framer-motion';
 import SimpleSlider from '../Component/Slider'
 import Banner from '../Component/Banner'
@@ -20,24 +19,42 @@ import { databases } from '../AppwriteConfig'
 import { Query } from 'appwrite'
 import StatBanner from '../Component/StatBanner'
 
+const fadeUp   = { initial: { opacity: 0, y: 40 },  animate: { opacity: 1, y: 0 },  transition: { duration: 0.7 } };
+const fadeLeft = { initial: { opacity: 0, x: -60 }, animate: { opacity: 1, x: 0 },  transition: { duration: 0.8 } };
+const fadeRight= { initial: { opacity: 0, x: 60 },  animate: { opacity: 1, x: 0 },  transition: { duration: 0.8 } };
+const fadeIn   = { initial: { opacity: 0 },          animate: { opacity: 1 },         transition: { duration: 1.2 } };
+
+const SectionLabel = ({ children }) => (
+  <div className="flex items-center gap-3 max-w-5xl mx-auto px-4 py-5">
+    <div className="h-1 w-8 bg-blue-500 rounded-full" />
+    <h2 className="uppercase font-black text-xl text-blue-600 tracking-widest">{children}</h2>
+    <div className="h-1 flex-1 bg-blue-100 rounded-full" />
+  </div>
+);
+
 export default function Home() {
 
-  const [ partenaire, setPartenaire] = useState([])
-  const [category, setCategory] = useState([])
-  const [hero, setHero] = useState([])
+  const [partenaire, setPartenaire] = useState([]);
+  const [category, setCategory]     = useState([]);
+  const [hero, setHero]             = useState([]);
+
+  const images = [img3, img5, img6, img7];
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex(prev => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [images.length]);
 
   useEffect(() => {
     const getHero = async () => {
       try {
-        const response = await databases.listDocuments(
-          '67b7400000011dbf91e6',
-          '67b742a30002b491452e',
-        );
-        setHero(response.documents); // Returns an array of documents
-      } catch (error) {
-        console.error("Error fetching collection:", error);
-      }
-    }
+        const response = await databases.listDocuments('67b7400000011dbf91e6', '67b742a30002b491452e');
+        setHero(response.documents);
+      } catch (error) { console.error("Error fetching collection:", error); }
+    };
     getHero();
   }, []);
 
@@ -45,291 +62,245 @@ export default function Home() {
     const getPartenaire = async () => {
       try {
         const response = await databases.listDocuments(
-          '67b7400000011dbf91e6',
-          '67b7470e000c26abd126',
-          [
-            Query.limit(4),
-            Query.orderDesc('createdAt')
-          ]
+          '67b7400000011dbf91e6', '67b7470e000c26abd126',
+          [Query.limit(4), Query.orderDesc('createdAt')]
         );
-        setPartenaire(response.documents); // Returns an array of documents
-      } catch (error) {
-        console.error("Error fetching collection:", error);
-      }
-    }
+        setPartenaire(response.documents);
+      } catch (error) { console.error("Error fetching collection:", error); }
+    };
     getPartenaire();
   }, []);
 
-  
   useEffect(() => {
     const getCategory = async () => {
       try {
-        const response = await databases.listDocuments(
-          '67b7400000011dbf91e6',
-          '67b740ac0030d5738225',
-        );
-        setCategory(response.documents); // Returns an array of documents
-      } catch (error) {
-        console.error("Error fetching collection:", error);
-      }
-    }
+        const response = await databases.listDocuments('67b7400000011dbf91e6', '67b740ac0030d5738225');
+        setCategory(response.documents);
+      } catch (error) { console.error("Error fetching collection:", error); }
+    };
     getCategory();
   }, []);
 
-
-  const images = [img3, img5, img6, img7]; // Array of background images
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 5000); // Change image every 5 seconds
-
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, [images.length]);
+  const featureCards = [
+    { img: imgj,  title: 'Talents',      desc: 'Révélateurs de talents, toutes catégories confondues', icon: null },
+    { img: img2,  title: 'Joueurs',      desc: 'Nos joueurs sont polyvalents et sont tous disciplines', icon: null },
+    { img: null,  title: 'Championnat',  desc: 'Nous sommes engagés dans différents championnats',     icon: <HiTrophy className="text-blue-500" size={56} /> },
+    { img: imgl,  title: 'Formation',    desc: "Nous avons un equipe d'expert pour les guide",         icon: null },
+  ];
 
   return (
-    <div>
-        {
-           hero.map((head) => (
-            <div 
-             key={head.$id}
-             style={{
-              backgroundImage: `url(${images[currentImageIndex]})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-           className='flex md:flex-row flex-col items-center justify-center p-2'>
-        <motion.div
-          initial={{ opacity: 0, y: -100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-           className='flex-1 md:hidden inline'>
-            <img src={head.logo} alt="hero" width={450} className='rounded-full' />
-        </motion.div>
-          <motion.div
-          initial={{ opacity: 0, y: -100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className='flex-1'
-          >
-            {/*<h1 className='text-3xl font-bold text-center text-blue-500 uppercase'>{head.hero_title}</h1>*/}
-            <img src={imgHERO} alt="hero" width={400} className='mx-auto'/>
-            <p className='text-justify text-white mx-auto md:w-[490px] mb-2'>
-              {head.hero_desc}
-            </p>
-            <div className='flex gap-3 justify-center sm:p-3 p-1'>
-            <Link to='/gallery'>
-             <span className='sm:inline hidden'>
-              <Button color='blue' className='rounded-full sm:w-32 w-52'>Gallery</Button>
-             </span>
-            </Link>
-            <Link to='/trophy'>
-               <Button color='blue' className='rounded-full sm:w-32 w-52'>Trophy Room</Button>
-            </Link>
-            </div>
-          </motion.div>
-          <motion.div
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1 }}
-          className='flex-1 md:inline hidden'
-          >
-            <img src={head.logo} alt="hero" width={500} className='rounded-full' />
-        </motion.div>
-        </div>
-          ))
-        }
-        <motion.div
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className='flex flex-wrap justify-center gap-2 max-w-7xl w-full relative mx-auto'
+    <div className="min-h-screen bg-white">
+
+      {/* ── HERO ── */}
+      {hero.map((head) => (
+        <div
+          key={head.$id}
+          className="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
+          style={{
+            backgroundImage: `url(${images[currentImageIndex]})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            transition: 'background-image 1s ease-in-out',
+          }}
         >
-           <div className="flex rounded-md sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-3 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
-           <img src={imgj} width={90} className='rounded-full'/>
-             <div>
-             <h1 className='text-sm text-red-600 font-bold uppercase'>
-              Talents
-             </h1>
-             <p className='text-xs'>Révélateurs de talents, toutes catégories confondues</p>
-             </div>
-           </div>
-           <div className="flex rounded-md sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-3 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
-             <img src={img2} width={90} className='rounded-full'/>
-              <div>
-             <h1 className='text-sm text-red-600 font-bold uppercase'>
-             Joueurs
-             </h1>
-             <p className='text-xs'>Nos joueurs sont polyvalents et sont tous disciplines</p>
-             </div>
-           </div>
-           <div className="flex rounded-md sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto p-4 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
-             <HiTrophy color='blue' size={60} />
-              <div>
-             <h1 className='text-sm text-red-600 font-bold uppercase'>
-             Championnat
-             </h1>
-             <p className='text-xs'>Nous sommes engagés dans différents championnats</p>
-             </div>
-           </div>
-           <div className="flex rounded-md sm:justify-between gap-3 items-center sm:w-72 w-full mx-auto  p-4 m-3 ml-2 mr-2 border-2 border-blue-500 shadow-xl sm:hover:scale-110">
-           <img src={imgl} width={70} className='rounded-full'/>
-              <div>
-             <h1 className='text-sm text-red-600 font-bold uppercase'>
-             Formation
-             </h1>
-             <p className='text-xs'>Nous avons un equipe d'expert pour les guide</p>
-             </div>
-           </div>
-        </motion.div>
-        <motion.h1
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-         className='uppercase text-xl max-w-5xl mx-auto p-3 text-blue-700 font-bold '>
-           Actualite en bref
-        </motion.h1>
-        <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1 }}>
-          <Banner />
-        </motion.div>
-        <div className='mx-auto uppercase text-blue-500 text-xl p-2 font-bold max-w-5xl'>
-           Prochain Matchs
-        </div>
-        <div className='p-2'>
-             <Matches />
-        </div>
-        <motion.div
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1 }}
-         className=' text-xl max-w-5xl mx-auto uppercase font-bold text-blue-500 m-2 p-2'>
-           Evenement de la Semaine
-        </motion.div>
-        <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        className=''>
-         <SimpleSlider />
-        </motion.div>
-        <div className='bg-blue-700 p-3 mx-auto max-w-6xl items-center grid sm:grid-cols-2'>
-           <video
-            autoPlay
-            loop
-            muted 
-            width={600} 
-            className='mx-auto flex-1'>
-              <source src={vid1} />
-           </video>
-           <div className='mx-auto flex-1'>
-            <div className='mx-auto mt-2'>
-              <p className='uppercase font-bold text-sm text-white text-center'>Champion Regional du littoral</p>
-              <p className='uppercase font-bold text-xs text-blue-300 text-center'>African Football Academy</p>
-            </div>
-           </div>
-        </div>
-          <div className='uppercase font-bold mx-auto text-xxl max-w-4xl text-blue-500 p-1'>
-           Highlight
-        </div>
-          <Media />
-          <motion.h1 className='uppercase p-2 text-xl text-blue-500 font-bold max-w-2xl mx-auto'>
-             Programme partenaire
-          </motion.h1>
-          <div className='bg-gray-100'>
-              <div className='flex max-w-2xl mx-auto gap-6 justify-between overflow-x-scroll scrollbar p-3'>
-                { partenaire.map((image) => (
-                    <span key={image.$id} className='w-24'>
-                       <img src={image.image} width={100} />
-                    </span>
-                ))}
-              </div>
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-800/60 to-black/70" />
+
+          {/* Diagonal decorative stripe */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-10 -left-10 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-red-500/10 blur-3xl" />
           </div>
-        <div>
-          <h1 className='uppercase text-xl font-bold text-blue-500 text-center mt-2 mb-4 p-2'>Réalisation</h1>
-          <div className="relative">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 3 }}
-              className="w-full"
-            >
-              <img src={img3} alt="Achievement" className="w-full md:h-[700px] md:blur-sm sm:hover:blur-0 bg-black" />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1 }}
-              className="absolute bg-black md:bg-opacity-30 bg-opacity-20 top-0 right-0 w-full md:w-2/4 h-full flex items-center"
-            >
-              <div className="text-white mx-auto text-center p-6 m-4">
-                <motion.h1 
-                initial={{ opacity: 0, x: -100 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 3 }}
-                className="sm:text-3xl font-bold text-cyan-400">
-                Nos réalisations
-                </motion.h1>
-                <motion.h1
-                initial={{ opacity: 0, x: -100 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 3 }}
-                 className='sm:text-4xl font-bold mb-4'>Galerie de la salle des trophées</motion.h1>
-                  <Link to='/trophy'>
-                <Button className='mx-auto sm:w-52 w-32 rounded-full' color='blue'>
-                     Gallery
-                </Button>
-                  </Link>
+
+          <div className="relative z-10 w-full max-w-6xl mx-auto px-6 grid md:grid-cols-3 items-center gap-8 py-16">
+
+            {/* Left logo (mobile only) */}
+            <motion.div {...fadeUp} className="md:hidden flex justify-center">
+              <div className="w-36 h-36 rounded-full border-4 border-white/30 overflow-hidden shadow-2xl">
+                <img src={head.logo} alt="logo" className="w-full h-full object-cover" />
               </div>
             </motion.div>
+
+            {/* Center content */}
+            <motion.div {...fadeUp} className="flex flex-col items-center text-center md:col-span-1 order-1">
+              <img src={imgHERO} alt="hero" className="w-80 mx-auto mb-4 drop-shadow-2xl" />
+              <p className="text-white/80 text-sm leading-relaxed max-w-xs mb-6">{head.hero_desc}</p>
+              <div className="flex gap-3 justify-center flex-wrap">
+                <Link to="/gallery">
+                  <button className="bg-blue-500 hover:bg-blue-400 text-white font-black text-sm px-6 py-2.5 rounded-full shadow-lg shadow-blue-500/40 transition-all hover:scale-105 tracking-wide uppercase">
+                    Gallery
+                  </button>
+                </Link>
+                <Link to="/trophy">
+                  <button className="bg-white/15 hover:bg-white/25 border border-white/40 text-white font-black text-sm px-6 py-2.5 rounded-full backdrop-blur-sm transition-all hover:scale-105 tracking-wide uppercase">
+                    Trophy Room
+                  </button>
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Right logo (desktop) */}
+            <motion.div {...fadeRight} className="hidden md:flex justify-center md:order-2">
+              <div className="w-52 h-52 rounded-full border-4 border-white/25 overflow-hidden shadow-2xl ring-4 ring-blue-500/30">
+                <img src={head.logo} alt="logo" className="w-full h-full object-cover" />
+              </div>
+            </motion.div>
+
+          </div>
+
+          {/* Scroll indicator */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce">
+            <div className="w-px h-8 bg-white/40 rounded-full" />
+            <div className="w-2 h-2 rounded-full bg-white/60" />
           </div>
         </div>
-        <div>
-        <motion.div>
-           <StatBanner />
-        </motion.div>
-          <motion.h1
-          initial={{ opacity: 0, x: -100 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 3 }}
-          className='text-xl font-bold text-blue-500 text-center mt-2 mb-4 uppercase'
+      ))}
+
+      {/* ── FEATURE CARDS ── */}
+      <motion.div {...fadeUp} className="max-w-6xl mx-auto px-4 py-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {featureCards.map((card, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            className="group flex gap-4 items-center p-4 rounded-2xl border-2 border-blue-100 bg-white shadow-md hover:shadow-xl hover:border-blue-400 hover:-translate-y-1 transition-all duration-200"
           >
-           Catégorie et équipe
-          </motion.h1>
-          <motion.div className='flex sm:flex-row flex-col justify-between gap-2 p-4'>
-            {
-              category.map((cat) => (
-                <div key={cat.$id} className="relative">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 3 }}
-                  className="flex-1"
-                >
-                  <img src={cat.img} alt="Achievement" width={650} height={600} className="sm:h-[370px]" />
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 1 }}
-                  className="absolute top-0 bg-black bg-opacity-50 w-full text-center">
-                  <div className="text-white mx-auto text-center p-1">
-                    <motion.h1
-                    initial={{ opacity: 0, x: -100 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 3 }}
-                    className='sm:text-2xl text-center font-bold mb-4'>{cat.cat}
-                    </motion.h1>
+            <div className="flex-shrink-0">
+              {card.icon
+                ? card.icon
+                : <div className="w-14 h-14 rounded-xl overflow-hidden bg-blue-50">
+                    <img src={card.img} className="w-full h-full object-cover" alt="" />
                   </div>
-                </motion.div>
-                </div>
-              )
-            )}
+              }
+            </div>
+            <div>
+              <h3 className="text-red-600 font-black text-sm uppercase tracking-wide mb-1">{card.title}</h3>
+              <p className="text-gray-500 text-xs leading-relaxed">{card.desc}</p>
+            </div>
           </motion.div>
+        ))}
+      </motion.div>
+
+      {/* ── ACTUALITÉS ── */}
+      <motion.div {...fadeLeft}>
+        <SectionLabel>Actualité en bref</SectionLabel>
+        <div className="max-w-5xl mx-auto px-4 pb-6">
+          <Banner />
         </div>
+      </motion.div>
+
+      {/* ── PROCHAINS MATCHS ── */}
+      <div className="bg-blue-50">
+        <SectionLabel>Prochain Matchs</SectionLabel>
+        <div className="max-w-5xl mx-auto px-4 pb-8">
+          <Matches />
+        </div>
+      </div>
+
+      {/* ── ÉVÉNEMENT DE LA SEMAINE ── */}
+      <motion.div {...fadeRight}>
+        <SectionLabel>Événement de la Semaine</SectionLabel>
+        <div className="pb-6">
+          <SimpleSlider />
+        </div>
+      </motion.div>
+
+      {/* ── CHAMPION BANNER ── */}
+      <div className="bg-blue-700 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.07),transparent_60%)]" />
+        <div className="relative max-w-6xl mx-auto grid sm:grid-cols-2 items-center gap-4 p-4">
+          <video autoPlay loop muted className="mx-auto w-full max-w-lg rounded-2xl shadow-2xl">
+            <source src={vid1} />
+          </video>
+          <div className="text-center py-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-300 mb-4 shadow-lg">
+              <HiTrophy className="text-blue-900" size={32} />
+            </div>
+            <p className="uppercase font-black text-lg text-white tracking-widest mb-1">Champion Régional du Littoral</p>
+            <p className="uppercase font-bold text-sm text-blue-300 tracking-widest">African Football Academy</p>
+            <div className="mt-4 w-16 h-1 bg-yellow-300 rounded-full mx-auto" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── HIGHLIGHTS ── */}
+      <motion.div {...fadeUp}>
+        <SectionLabel>Highlight</SectionLabel>
+        <div className="max-w-5xl mx-auto px-4 pb-8">
+          <Media />
+        </div>
+      </motion.div>
+
+      {/* ── PARTENAIRES ── */}
+      <div className="bg-gray-50 py-8">
+        <SectionLabel>Programme Partenaire</SectionLabel>
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="flex gap-6 justify-center items-center flex-wrap">
+            {partenaire.map((image) => (
+              <div key={image.$id} className="w-24 h-16 flex items-center justify-center grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300">
+                <img src={image.image} className="w-full h-full object-contain" alt="" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── RÉALISATIONS ── */}
+      <div className="relative overflow-hidden">
+        <SectionLabel>Réalisation</SectionLabel>
+        <motion.div {...fadeIn} className="relative">
+          <img src={img3} alt="Achievement" className="w-full md:h-[680px] object-cover md:blur-sm hover:blur-0 transition-all duration-700" />
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-black/40" />
+          <motion.div
+            {...fadeRight}
+            className="absolute top-0 right-0 w-full md:w-1/2 h-full flex items-center"
+          >
+            <div className="text-white mx-auto text-center p-8">
+              <div className="w-12 h-1 bg-blue-400 rounded-full mx-auto mb-5" />
+              <h2 className="text-cyan-400 font-black text-2xl sm:text-3xl mb-3 tracking-wide uppercase">
+                Nos Réalisations
+              </h2>
+              <h3 className="font-black text-xl sm:text-3xl mb-6 leading-tight">
+                Galerie de la salle des trophées
+              </h3>
+              <Link to="/trophy">
+                <button className="bg-blue-500 hover:bg-blue-400 text-white font-black px-8 py-3 rounded-full shadow-lg shadow-blue-500/40 hover:scale-105 transition-all uppercase tracking-wide text-sm">
+                  Gallery
+                </button>
+              </Link>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+
+      {/* ── STAT BANNER ── */}
+      <StatBanner />
+
+      {/* ── CATÉGORIES ── */}
+      <motion.div {...fadeUp}>
+        <SectionLabel>Catégorie et Équipe</SectionLabel>
+        <div className="flex sm:flex-row flex-col gap-0 overflow-hidden max-w-full">
+          {category.map((cat) => (
+            <div key={cat.$id} className="relative flex-1 group overflow-hidden">
+              <motion.img
+                {...fadeIn}
+                src={cat.img}
+                alt={cat.cat}
+                className="w-full sm:h-[380px] object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent group-hover:from-blue-900/80 transition-all duration-500" />
+              <div className="absolute bottom-0 left-0 right-0 p-5 text-center">
+                <div className="w-8 h-1 bg-blue-400 rounded-full mx-auto mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <h3 className="text-white font-black text-xl sm:text-2xl uppercase tracking-wide">{cat.cat}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
     </div>
-  )
+  );
 }

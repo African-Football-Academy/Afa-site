@@ -183,16 +183,6 @@ export default function Home() {
               </div>
             </motion.div>
           </div>
-
-          {/* Bottom scroll indicator */}
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/50 flex flex-col items-center gap-1"
-          >
-            <span className="text-xs uppercase tracking-widest">Scroll</span>
-            <div className="w-px h-8 bg-gradient-to-b from-white/50 to-transparent" />
-          </motion.div>
         </div>
       ))}
 
@@ -236,7 +226,7 @@ export default function Home() {
       {/* ── ACTUALITÉS ────────────────────────────────────────────────────────── */}
       <div className="bg-gray-50 py-4">
         <SectionLabel>Actualité en bref</SectionLabel>
-        <div className="max-w-6xl mx-auto px-4 pb-8">
+        <div className="">
           <Banner />
         </div>
       </div>
@@ -266,7 +256,7 @@ export default function Home() {
       {/* ── CHAMPION VIDEO BLOCK ──────────────────────────────────────────────── */}
       <div className="relative overflow-hidden bg-blue-900 py-16">
         <div className="absolute inset-0 opacity-10"
-             style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} />
+             style={{ background: 'linear-gradient(45deg, #fff 0%, transparent 50%)', backgroundSize: '20px 20px' }} />
         <div className="relative max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
           <motion.div
             initial={{ opacity: 0, x: -60 }}

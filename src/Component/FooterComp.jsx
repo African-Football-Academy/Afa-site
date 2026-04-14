@@ -40,7 +40,7 @@ export default function FooterComp() {
       </div>
       <Footer.Divider />
       <div className='w-full flex justify-between'>
-         <Footer.Copyright  by='TechNovaCorp@@' year={new Date().getFullYear()}/>
+         <Footer.Copyright  by='Twilight Gen@@' year={new Date().getFullYear()}/>
          <div className=' flex gap-6 justify-center'>
             <Footer.Icon href='#' icon={BsFacebook} />
             <Footer.Icon href='#' icon={BsInstagram} />

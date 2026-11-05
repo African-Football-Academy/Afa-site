@@ -4,6 +4,46 @@ import { databases } from '../AppwriteConfig';
 import { Query } from 'appwrite';
 import { GoHeart, GoHeartFill } from 'react-icons/go';
 import { motion } from 'framer-motion';
+import { HiCalendar, HiClock, HiArrowRight } from 'react-icons/hi';
+import imgU12 from '../img/afa u12.jpg';
+import imgAfa2 from '../img/afa2.jpg';
+import imgAfa3 from '../img/afa3.jpg';
+import imgCup from '../img/afa cup.jpg';
+
+const fallbackBlogs = [
+  {
+    $id: 'event-1',
+    title: "Stage de Détection Élite : Plus de 80 Jeunes Évalués à Douala",
+    desc: "Nos recruteurs et coachs certifiés ont supervisé les tests physiques, techniques et tactiques pour intégrer les promotions U15 et U17.",
+    img: imgU12,
+    date: '10 Nov 2026',
+    category: 'Détection',
+  },
+  {
+    $id: 'event-2',
+    title: "Préparation Tactique : Les U17 Face aux Défis du Championnat",
+    desc: "Séances intensives axées sur le pressing haut, la transition rapide et la rigueur défensive avant le derby de dimanche.",
+    img: imgAfa2,
+    date: '08 Nov 2026',
+    category: 'Entraînement',
+  },
+  {
+    $id: 'event-3',
+    title: "Remise Officielle des Équipements de la Nouvelle Saison",
+    desc: "Chaque joueur de l'académie a reçu son pack professionnel : maillots domicile/extérieur, survêtements et matériel d'échauffement.",
+    img: imgAfa3,
+    date: '04 Nov 2026',
+    category: 'Équipement',
+  },
+  {
+    $id: 'event-4',
+    title: "Victoire Éclatante en Finale de la Coupe Espoirs du Littoral",
+    desc: "Revivez les moments clés et les buts spectaculaires de notre équipe qui s'adjuge un nouveau trophée majeur.",
+    img: imgCup,
+    date: '01 Nov 2026',
+    category: 'Compétition',
+  },
+];
 
 const SimpleSlider = () => {
   const [blogs, setBlog] = useState([]);
@@ -17,9 +57,14 @@ const SimpleSlider = () => {
           '67b74017001ae7cc6a35',
           [Query.limit(4), Query.orderDesc('createdAt')]
         );
-        setBlog(response.documents);
+        if (response.documents && response.documents.length > 0) {
+          setBlog(response.documents);
+        } else {
+          setBlog(fallbackBlogs);
+        }
       } catch (error) {
-        console.error('Error fetching blogs:', error);
+        console.warn('Slider fallback triggered:', error);
+        setBlog(fallbackBlogs);
       }
     };
     getBlog();
@@ -27,75 +72,85 @@ const SimpleSlider = () => {
 
   const toggleLike = (e, id) => {
     e.preventDefault();
+    e.stopPropagation();
     setLiked((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const displayBlogs = blogs.length > 0 ? blogs : fallbackBlogs;
+
   return (
-    <div className="bg-gray-50 w-full py-4">
-      <div className="grid md:grid-cols-2 gap-4 max-w-6xl mx-auto px-4 mb-6">
-        {blogs.map((blog, i) => (
+    <div className="w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-7xl mx-auto px-4">
+        {displayBlogs.map((blog, i) => (
           <motion.div
-            key={blog.$id}
+            key={blog.$id || i}
             initial={{ opacity: 0, y: 28 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.45, delay: i * 0.1 }}
-            whileHover={{ y: -5 }}
-            className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 bg-white border border-gray-100 hover:border-blue-200"
+            transition={{ duration: 0.45, delay: i * 0.08 }}
+            whileHover={{ y: -6 }}
+            className="group relative overflow-hidden rounded-2xl shadow-xl bg-slate-900 border border-blue-900/30 hover:border-blue-400/50 transition-all duration-300 flex flex-col"
           >
-            <Link to={`/blog/${blog.$id}`}>
-
-              {/* Image */}
-              <div className="relative overflow-hidden h-60 sm:h-80 bg-gray-900">
+            <Link to={`/blog/${blog.$id}`} className="flex flex-col h-full">
+              {/* Image & Badges */}
+              <div className="relative overflow-hidden h-52 bg-slate-950">
                 <img
-                  src={blog.img}
+                  src={blog.img || imgAfa3}
                   alt={blog.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
                 />
 
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                {/* Gradient Scrim */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
 
-                {/* Top-left animated accent bar */}
-                <div className="absolute top-0 left-0 h-1 w-0 bg-gradient-to-r from-blue-600 to-red-500 group-hover:w-full transition-all duration-500" />
+                {/* Top Glowing Edge on hover */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-red-500 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
 
-                {/* Category + Like row */}
+                {/* Top Category Badge & Like Button */}
                 <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                  <div className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow">
-                    <span className="w-1 h-1 bg-white rounded-full" />
-                    .Academy
-                  </div>
+                  <span className="inline-flex items-center gap-1.5 bg-blue-600/90 backdrop-blur-sm text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow">
+                    <span className="w-1 h-1 bg-white rounded-full animate-ping" />
+                    {blog.category || 'Événement'}
+                  </span>
 
-                  {/* Like button */}
-                  <motion.button
-                    whileTap={{ scale: 0.75 }}
+                  <button
                     onClick={(e) => toggleLike(e, blog.$id)}
-                    className="w-8 h-8 bg-black/40 backdrop-blur-sm hover:bg-black/60 rounded-full flex items-center justify-center transition-colors border border-white/10"
+                    className="w-8 h-8 rounded-full bg-slate-950/60 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:scale-110 transition-transform"
+                    title="J'aime"
+                    aria-label="Like article"
                   >
-                    {liked[blog.$id]
-                      ? <GoHeartFill size={14} className="text-red-500" />
-                      : <GoHeart size={14} className="text-white" />
-                    }
-                  </motion.button>
+                    {liked[blog.$id] ? (
+                      <GoHeartFill size={15} className="text-red-500" />
+                    ) : (
+                      <GoHeart size={15} className="text-white hover:text-red-400" />
+                    )}
+                  </button>
                 </div>
 
-                {/* Bottom content */}
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <h2 className="uppercase font-black text-white text-sm leading-tight line-clamp-2 mb-1.5 drop-shadow">
-                    {blog.title}
-                  </h2>
-                  <p className="text-gray-300 text-xs leading-relaxed line-clamp-2 mb-3">
-                    {blog.desc}
-                  </p>
-
-                  {/* Read more CTA */}
-                  <div className="flex items-center gap-1.5 text-blue-300 text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                    <span>Lire la suite</span>
-                    <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
-                  </div>
+                {/* Date Chip */}
+                <div className="absolute bottom-3 left-3 flex items-center gap-1 text-[11px] text-slate-300 font-semibold bg-slate-950/70 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/10">
+                  <HiCalendar size={12} className="text-blue-400" />
+                  <span>{blog.date || 'Saison 2026'}</span>
                 </div>
               </div>
 
+              {/* Text Body */}
+              <div className="p-5 flex-1 flex flex-col justify-between gap-3">
+                <div>
+                  <h3 className="font-black text-white text-sm sm:text-base uppercase leading-snug line-clamp-2 group-hover:text-blue-300 transition-colors font-display">
+                    {blog.title}
+                  </h3>
+                  <p className="text-slate-400 text-xs leading-relaxed line-clamp-2 mt-2">
+                    {blog.desc}
+                  </p>
+                </div>
+
+                {/* Footer read CTA */}
+                <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs font-bold uppercase tracking-wider text-blue-400 group-hover:text-white transition-colors">
+                  <span>Lire l'article</span>
+                  <HiArrowRight size={14} className="group-hover:translate-x-1.5 transition-transform" />
+                </div>
+              </div>
             </Link>
           </motion.div>
         ))}

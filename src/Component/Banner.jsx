@@ -1,9 +1,21 @@
 import { useEffect, useState } from 'react'
 import { MdFacebook } from 'react-icons/md'
-import { FaXTwitter, FaYoutube } from 'react-icons/fa6'
+import { FaXTwitter, FaYoutube, FaWhatsapp } from 'react-icons/fa6'
 import { databases } from '../AppwriteConfig'
 import { Query } from 'appwrite'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
+import { HiSparkles, HiClock, HiArrowRight } from 'react-icons/hi'
+import defaultBannerImg from '../img/afa champion.jpg'
+
+const fallbackBlog = {
+  $id: 'featured-champ',
+  title: "L'African Football Academy Sacrée Championne Régionale du Littoral",
+  desc: "Au terme d'une saison historique sans la moindre défaite, les jeunes prodiges de l'AFA remportent le titre suprême du Littoral et confirment leur statut de référence footballistique en Afrique.",
+  img: defaultBannerImg,
+  date: 'Saison 2025/2026',
+  category: 'Événement Officiel',
+}
 
 export default function Banner() {
   const [tblogs, setTBlog] = useState([])
@@ -16,138 +28,117 @@ export default function Banner() {
           '67b74017001ae7cc6a35',
           [Query.limit(1), Query.orderDesc('createdAt')]
         )
-        setTBlog(response.documents)
+        if (response.documents && response.documents.length > 0) {
+          setTBlog(response.documents)
+        } else {
+          setTBlog([fallbackBlog])
+        }
       } catch (error) {
-        console.error('Error fetching banner:', error)
+        console.warn('Banner news fallback:', error)
+        setTBlog([fallbackBlog])
       }
     }
     getTBlog()
   }, [])
 
+  const displayBlog = tblogs.length > 0 ? tblogs[0] : fallbackBlog
+
   return (
-    <div className="max-w-5xl mx-auto px-4">
-      {tblogs.map((blog) => (
-        <motion.div
-          key={blog.$id}
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="group relative overflow-hidden rounded-2xl shadow-2xl border border-blue-900/30"
-        >
-          {/* ── Background image layer ── */}
-          <div className="relative h-72 sm:h-96 overflow-hidden">
-            <img
-              src={blog.img}
-              alt={blog.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
+    <div className="max-w-6xl mx-auto px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="group relative overflow-hidden rounded-3xl shadow-2xl border border-blue-900/40 bg-slate-950"
+      >
+        <div className="relative min-h-[380px] sm:min-h-[440px] flex items-end">
+          {/* Background Image with smooth zoom on hover */}
+          <img
+            src={displayBlog.img || defaultBannerImg}
+            alt={displayBlog.title}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+          />
 
-            {/* Full overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-950/95 via-blue-900/70 to-blue-800/20" />
+          {/* Deep Cinematic Gradient Scrim */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-blue-950/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-transparent" />
 
-            {/* Bottom fade */}
-            <div className="absolute inset-0 bg-gradient-to-t from-blue-950/80 via-transparent to-transparent" />
+          {/* Top Championship Accent Line */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-blue-500 to-amber-400" />
 
-            {/* Top accent bar */}
-            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-500 via-blue-400 to-transparent" />
+          {/* Content Layout */}
+          <div className="relative z-10 p-6 sm:p-10 max-w-3xl flex flex-col items-start gap-4">
+            {/* Badges Row */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="inline-flex items-center gap-1.5 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
+                <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                {displayBlog.category || 'Actualité · Academy'}
+              </span>
+              <span className="inline-flex items-center gap-1 bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full backdrop-blur-sm">
+                <HiSparkles size={12} />
+                À la Une
+              </span>
+              <span className="text-slate-400 text-xs flex items-center gap-1">
+                <HiClock size={13} />
+                Lecture 3 min
+              </span>
+            </div>
 
-            {/* ── Content overlaid on image ── */}
-            <div className="absolute inset-0 flex items-center">
-              <div className="px-6 sm:px-10 max-w-lg">
+            {/* Title */}
+            <h2 className="text-white font-black text-2xl sm:text-4xl uppercase leading-tight font-display drop-shadow-xl group-hover:text-blue-300 transition-colors">
+              {displayBlog.title}
+            </h2>
 
-                {/* Badge */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 }}
-                  className="inline-flex items-center gap-2 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full mb-4 shadow"
+            {/* Accent Divider */}
+            <div className="w-16 h-1 bg-gradient-to-r from-red-500 to-blue-500 rounded-full" />
+
+            {/* Description */}
+            <p className="text-slate-300 text-sm sm:text-base leading-relaxed line-clamp-3 max-w-2xl">
+              {displayBlog.desc}
+            </p>
+
+            {/* Action Row */}
+            <div className="flex flex-wrap items-center justify-between w-full pt-2 gap-4 border-t border-white/10 mt-2">
+              <Link to={displayBlog.$id ? `/blog/${displayBlog.$id}` : '/gallery'}>
+                <button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-black text-xs uppercase tracking-widest px-6 py-2.5 rounded-full shadow-lg shadow-blue-900/40 border border-blue-400/30 flex items-center gap-2 transition-all">
+                  <span>Lire l'Article Complet</span>
+                  <HiArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+              </Link>
+
+              {/* Social Share Icons */}
+              <div className="flex items-center gap-2">
+                <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider mr-1">
+                  Partager :
+                </span>
+                <button
+                  onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`, '_blank')}
+                  className="w-8 h-8 rounded-full bg-slate-900/80 border border-white/10 hover:bg-blue-600 hover:text-white text-blue-400 flex items-center justify-center transition-all"
+                  title="Partager sur Facebook"
                 >
-                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                  Actualité · Academy
-                </motion.div>
-
-                {/* Title */}
-                <motion.h2
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.4 }}
-                  className="text-white font-black text-xl sm:text-3xl uppercase leading-tight line-clamp-2 mb-3 drop-shadow-lg"
+                  <MdFacebook size={16} />
+                </button>
+                <button
+                  onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(displayBlog.title)}`, '_blank')}
+                  className="w-8 h-8 rounded-full bg-slate-900/80 border border-white/10 hover:bg-slate-700 hover:text-white text-slate-300 flex items-center justify-center transition-all"
+                  title="Partager sur X"
                 >
-                  {blog.title}
-                </motion.h2>
-
-                {/* Divider */}
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.5, duration: 0.4 }}
-                  className="origin-left w-12 h-0.5 bg-red-500 rounded-full mb-3"
-                />
-
-                {/* Description */}
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.55 }}
-                  className="text-blue-200 text-sm leading-relaxed line-clamp-2 mb-5"
+                  <FaXTwitter size={14} />
+                </button>
+                <button
+                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(displayBlog.title + ' ' + window.location.href)}`, '_blank')}
+                  className="w-8 h-8 rounded-full bg-slate-900/80 border border-white/10 hover:bg-emerald-600 hover:text-white text-emerald-400 flex items-center justify-center transition-all"
+                  title="Partager sur WhatsApp"
                 >
-                  {blog.desc}
-                </motion.p>
-
-                {/* Social icons */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.65 }}
-                  className="flex items-center gap-3"
-                >
-                  {[
-                    {
-                      icon: <MdFacebook size={18} />,
-                      color: 'text-blue-400 hover:text-blue-300',
-                      bg: 'hover:bg-blue-500/20',
-                      label: 'Facebook',
-                    },
-                    {
-                      icon: <FaYoutube size={16} />,
-                      color: 'text-red-400 hover:text-red-300',
-                      bg: 'hover:bg-red-500/20',
-                      label: 'YouTube',
-                    },
-                    {
-                      icon: <FaXTwitter size={14} />,
-                      color: 'text-gray-300 hover:text-white',
-                      bg: 'hover:bg-white/10',
-                      label: 'X / Twitter',
-                    },
-                  ].map(({ icon, color, bg, label }) => (
-                    <motion.button
-                      key={label}
-                      whileHover={{ scale: 1.15 }}
-                      whileTap={{ scale: 0.9 }}
-                      title={label}
-                      className={`w-8 h-8 rounded-full border border-white/10 flex items-center justify-center ${color} ${bg} transition-all duration-200`}
-                    >
-                      {icon}
-                    </motion.button>
-                  ))}
-
-                  {/* Subtle share label */}
-                  <span className="text-blue-400/60 text-[10px] uppercase tracking-widest font-bold ml-1">
-                    Partager
-                  </span>
-                </motion.div>
+                  <FaWhatsapp size={15} />
+                </button>
               </div>
             </div>
+
           </div>
-        </motion.div>
-      ))}
+        </div>
+      </motion.div>
     </div>
   )
 }

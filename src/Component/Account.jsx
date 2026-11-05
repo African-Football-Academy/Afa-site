@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { account } from '../AppwriteConfig'
 import { toast, ToastContainer } from 'react-toastify'
-import img1 from '../img/profile.png'
+import imgProfile from '../img/profile.png'
+import afaLogo from '../img/afa.png'
 import { motion } from 'framer-motion'
-import { HiUser, HiMail, HiPhone, HiLogout, HiPencil, HiCheck } from 'react-icons/hi'
+import { HiUser, HiMail, HiPhone, HiLogout, HiPencil, HiCheck, HiSparkles, HiShieldCheck } from 'react-icons/hi'
 import { IoCloudOffline } from 'react-icons/io5'
+import { MdSportsSoccer } from 'react-icons/md'
 
 export default function Account() {
   const navigate = useNavigate()
@@ -17,11 +19,13 @@ export default function Account() {
 
   useEffect(() => {
     const getData = async () => {
-      const response = await account.get()
-      setUserData(response)
-      setName(response.name)
-      setEmail(response.email)
-      setPhone(response.phone)
+      try {
+        const response = await account.get()
+        setUserData(response)
+        setName(response.name || '')
+        setEmail(response.email || '')
+        setPhone(response.phone || '')
+      } catch (_) {}
     }
     getData()
   }, [])
@@ -32,7 +36,7 @@ export default function Account() {
       navigate('/login')
       window.location.reload()
     } catch (error) {
-      toast.error('Logout failed: ' + error.message)
+      toast.error('Déconnexion échouée: ' + error.message)
     }
   }
 
@@ -42,8 +46,8 @@ export default function Account() {
     try {
       if (name !== userData?.name) await account.updateName(name)
       if (email !== userData?.email) await account.updateEmail(email)
-      if (phone !== userData?.phone) await account.updatePhone(phone)
-      toast.success('Profil mis à jour avec succès!')
+      if (phone !== userData?.phone && phone) await account.updatePhone(phone)
+      toast.success('Profil mis à jour avec succès !')
     } catch (error) {
       toast.error('Erreur: ' + error.message)
     } finally {
@@ -51,241 +55,211 @@ export default function Account() {
     }
   }
 
-  // ── Not logged in ──────────────────────────────────────────────────────────
+  // Not logged in
   if (!userData) {
     return (
-      <div className="min-h-screen bg-gray-950 bg-img1 bg-cover flex flex-col items-center justify-center px-4">
-        <div className="absolute inset-0 bg-blue-950/90" />
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-4 py-20 relative">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative z-10 flex flex-col items-center gap-5 text-center"
+          className="relative z-10 bg-slate-900 border border-blue-900/50 rounded-3xl p-8 sm:p-10 max-w-md w-full flex flex-col items-center gap-5 text-center shadow-2xl"
         >
-          <div className="w-16 h-16 rounded-full bg-blue-800/60 border border-blue-700 flex items-center justify-center">
-            <HiUser size={28} className="text-blue-400" />
+          <div className="w-16 h-16 rounded-full bg-blue-600/20 border border-blue-500/40 flex items-center justify-center">
+            <HiUser size={30} className="text-blue-400" />
           </div>
-          <h2 className="text-white font-black text-xl uppercase tracking-widest">Aucun Compte</h2>
-          <p className="text-blue-300 text-sm">Vous devez être connecté pour accéder à cette page.</p>
-          <Link to="/login">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs px-8 py-3 rounded-full transition-all shadow-lg"
-            >
+          <h2 className="text-white font-black text-2xl uppercase tracking-tight font-display">
+            Accès Membre Requis
+          </h2>
+          <p className="text-slate-400 text-sm leading-relaxed">
+            Vous devez être connecté à votre compte pour consulter vos informations personnelles et votre badge officiel.
+          </p>
+          <Link to="/login" className="w-full">
+            <button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs py-3.5 rounded-full transition-all shadow-lg shadow-blue-900/40">
               Se Connecter
-            </motion.button>
+            </button>
           </Link>
         </motion.div>
       </div>
     )
   }
 
-  // ── Logged in ──────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-950">
-      <ToastContainer theme="dark" position="top-right" />
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-24">
+      <ToastContainer theme="dark" position="top-right" autoClose={2500} />
 
-      {/* ── HERO HEADER ──────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-blue-950 via-blue-900 to-gray-950 py-20 px-6">
-        <div className="absolute inset-0 opacity-10"
-             style={{ backgroundImage: 'radial-gradient(circle, #60a5fa 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-        <div className="absolute bottom-0 left-0 right-0 h-20"
-             style={{ background: 'linear-gradient(to bottom right, transparent 50%, #030712 50%)' }} />
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-500 via-blue-400 to-transparent" />
+      {/* ── HERO BANNER ──────────────────────────────────────────────────────── */}
+      <div className="relative overflow-hidden bg-slate-950 py-20 px-6 border-b border-blue-900/40">
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-blue-950/80 to-slate-950" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-blue-500 to-amber-400" />
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="relative z-10 text-center"
-        >
-          <span className="inline-flex items-center gap-2 bg-blue-700/60 border border-blue-600/40 text-blue-200 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full mb-5">
-            <HiUser size={12} />
-            Espace Personnel
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          <span className="inline-flex items-center gap-2 bg-blue-600/20 text-blue-300 border border-blue-500/30 text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full mb-3">
+            <HiShieldCheck size={14} className="text-emerald-400" />
+            Espace Membre Officiel
           </span>
-          <h1 className="text-5xl font-black uppercase tracking-[0.15em] text-white mb-2">
-            Mon <span className="text-blue-400">Compte</span>
+          <h1 className="text-3xl sm:text-5xl font-black uppercase text-white font-display">
+            Mon <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-sky-300">Profil</span>
           </h1>
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="mt-4 mx-auto w-20 h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent"
-          />
-        </motion.div>
+          <p className="text-slate-400 text-xs sm:text-sm mt-1">
+            Gérez vos informations de compte et visualisez votre Pass Académie
+          </p>
+        </div>
       </div>
 
-      {/* ── MAIN CONTENT ─────────────────────────────────────────────────────── */}
-      <div className="max-w-4xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-6 items-start">
-
-        {/* ── Profile Card ────────────────────────────────────────────────── */}
+      {/* ── CONTENT GRID ─────────────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-8 items-start">
+        
+        {/* ── Left: Digital Membership Pass ────────────────────────────────── */}
         <motion.div
-          initial={{ opacity: 0, x: -40 }}
+          initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative overflow-hidden rounded-2xl border border-blue-800/40 bg-gradient-to-b from-blue-900/40 to-blue-950/80 shadow-xl"
+          transition={{ duration: 0.5 }}
+          className="relative overflow-hidden rounded-3xl border border-blue-800/50 bg-gradient-to-b from-slate-900 via-slate-900 to-blue-950/60 shadow-2xl p-6 sm:p-8"
         >
-          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 via-red-500 to-transparent" />
+          {/* Top Foil */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 to-red-500" />
 
-          <div className="p-6 flex flex-col items-center text-center gap-4">
-            {/* Avatar */}
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-xl" />
-              <img
-                src={img1}
-                alt="profile"
-                className="relative w-24 h-24 rounded-full object-cover ring-2 ring-blue-500/40 ring-offset-2 ring-offset-blue-950 shadow-xl"
-              />
-              {/* Online dot */}
-              <div className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-blue-950" />
+          {/* Pass Header */}
+          <div className="flex items-center justify-between pb-6 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <img src={afaLogo} alt="AFA" className="w-10 h-10 rounded-full object-cover" />
+              <div>
+                <p className="text-white font-black text-xs uppercase tracking-wider font-athletic">African Football</p>
+                <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Academy Pass</p>
+              </div>
             </div>
-
-            {/* Name */}
-            <div>
-              <h2 className="text-white font-black text-xl uppercase tracking-wide">{userData.name}</h2>
-              {userData?.labels?.[0] === 'admin' && (
-                <span className="inline-block bg-red-600/30 border border-red-500/30 text-red-400 text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full mt-1">
-                  Admin
-                </span>
-              )}
-            </div>
-
-            <div className="w-full h-px bg-blue-700/40" />
-
-            {/* Info rows */}
-            <div className="w-full flex flex-col gap-3">
-              {[
-                { icon: <HiMail size={14} />, value: userData.email, label: 'Email' },
-                { icon: <HiPhone size={14} />, value: userData.phone || 'Non renseigné', label: 'Téléphone' },
-              ].map(({ icon, value, label }) => (
-                <div key={label} className="flex items-center gap-3 bg-blue-950/50 border border-blue-800/30 rounded-xl px-4 py-2.5">
-                  <span className="text-blue-400">{icon}</span>
-                  <div className="text-left min-w-0">
-                    <p className="text-blue-400 text-[9px] font-black uppercase tracking-widest">{label}</p>
-                    <p className="text-white text-xs font-semibold truncate">{value}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="w-full h-px bg-blue-700/40" />
-
-            {/* Sign out */}
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={Signout}
-              className="w-full flex items-center justify-center gap-2 bg-red-600/20 hover:bg-red-600/40 border border-red-500/30 text-red-400 hover:text-red-300 font-black uppercase tracking-widest text-xs py-3 rounded-full transition-all"
-            >
-              <IoCloudOffline size={16} />
-              Se Déconnecter
-            </motion.button>
+            <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full">
+              Actif 2026/27
+            </span>
           </div>
+
+          {/* Member Card Profile */}
+          <div className="py-6 flex flex-col items-center text-center">
+            <div className="relative mb-3">
+              <div className="w-24 h-24 rounded-full bg-blue-600/30 border-2 border-blue-400 flex items-center justify-center text-2xl font-black text-white font-display">
+                {userData.name?.charAt(0).toUpperCase() || 'A'}
+              </div>
+              <div className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-slate-900" />
+            </div>
+
+            <h2 className="text-xl font-black uppercase text-white font-display">
+              {userData.name}
+            </h2>
+            <p className="text-slate-400 text-xs mt-0.5">{userData.email}</p>
+
+            {userData?.labels?.[0] === 'admin' ? (
+              <span className="mt-3 bg-red-600/20 text-red-400 border border-red-500/30 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                Administrateur Club
+              </span>
+            ) : (
+              <span className="mt-3 bg-blue-600/20 text-blue-300 border border-blue-500/30 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                Membre Officiel
+              </span>
+            )}
+          </div>
+
+          {/* Account Details Box */}
+          <div className="bg-slate-950/70 rounded-2xl p-4 border border-white/5 flex flex-col gap-2.5 text-xs text-slate-300 mb-6">
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 uppercase text-[10px] font-bold">Identifiant (ID) :</span>
+              <span className="font-mono text-[11px] text-slate-300 truncate max-w-[180px]">{userData.$id}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 uppercase text-[10px] font-bold">Statut Licence :</span>
+              <span className="text-emerald-400 font-bold">Licence Validée</span>
+            </div>
+          </div>
+
+          {/* Sign Out Button */}
+          <button
+            onClick={Signout}
+            className="w-full flex items-center justify-center gap-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-400 font-black uppercase tracking-widest text-xs py-3 rounded-full transition-all"
+          >
+            <IoCloudOffline size={16} />
+            <span>Se Déconnecter de la Session</span>
+          </button>
         </motion.div>
 
-        {/* ── Update Form ─────────────────────────────────────────────────── */}
+        {/* ── Right: Profile Update Form ──────────────────────────────────── */}
         <motion.div
-          initial={{ opacity: 0, x: 40 }}
+          initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative overflow-hidden rounded-2xl border border-blue-800/40 bg-gradient-to-b from-blue-900/40 to-blue-950/80 shadow-xl"
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="relative overflow-hidden rounded-3xl border border-blue-800/50 bg-slate-900/90 shadow-2xl p-6 sm:p-8"
         >
-          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-500 via-blue-400 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-red-600 to-blue-600" />
 
-          <div className="p-6">
-            {/* Section label */}
-            <div className="flex items-center gap-3 mb-6">
-              <span className="block w-1 h-7 rounded-full bg-blue-500" />
-              <h2 className="uppercase tracking-[0.2em] text-xs font-black text-blue-300">
-                Modifier le Profil
-              </h2>
+          <h3 className="text-xl font-black uppercase text-white font-display mb-1 flex items-center gap-2">
+            <HiPencil size={18} className="text-blue-400" />
+            <span>Modifier mes Informations</span>
+          </h3>
+          <p className="text-slate-400 text-xs mb-6">
+            Mettez à jour vos coordonnées personnelles associées à l'AFA
+          </p>
+
+          <form onSubmit={handleUpdate} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="text-slate-300 text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                <HiUser className="text-blue-400" size={14} />
+                Nom Complet
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full bg-slate-950 border border-white/10 focus:border-blue-400 text-white text-sm rounded-xl px-4 py-3 outline-none transition-all shadow-inner"
+              />
             </div>
 
-            <form onSubmit={handleUpdate} className="flex flex-col gap-4">
-              {/* Name field */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-blue-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                  <HiUser size={11} /> Nom complet
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Votre nom"
-                    className="w-full bg-blue-950/60 border border-blue-800/50 focus:border-blue-500 text-white placeholder-blue-600 text-sm font-semibold rounded-xl px-4 py-3 outline-none transition-colors"
-                  />
-                  <HiPencil className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600" size={14} />
-                </div>
-              </div>
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="text-slate-300 text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                <HiMail className="text-blue-400" size={14} />
+                Adresse Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full bg-slate-950 border border-white/10 focus:border-blue-400 text-white text-sm rounded-xl px-4 py-3 outline-none transition-all shadow-inner"
+              />
+            </div>
 
-              {/* Email field */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-blue-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                  <HiMail size={11} /> Adresse Email
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Votre email"
-                    className="w-full bg-blue-950/60 border border-blue-800/50 focus:border-blue-500 text-white placeholder-blue-600 text-sm font-semibold rounded-xl px-4 py-3 outline-none transition-colors"
-                  />
-                  <HiPencil className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600" size={14} />
-                </div>
-              </div>
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="text-slate-300 text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                <HiPhone className="text-amber-400" size={14} />
+                Numéro de Téléphone
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="(+237) 6XX XXX XXX"
+                className="w-full bg-slate-950 border border-white/10 focus:border-blue-400 text-white text-sm rounded-xl px-4 py-3 outline-none transition-all shadow-inner"
+              />
+            </div>
 
-              {/* Phone field — only if user has phone */}
-              {userData?.phone && (
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-blue-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                    <HiPhone size={11} /> Téléphone
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Votre téléphone"
-                      className="w-full bg-blue-950/60 border border-blue-800/50 focus:border-blue-500 text-white placeholder-blue-600 text-sm font-semibold rounded-xl px-4 py-3 outline-none transition-colors"
-                    />
-                    <HiPencil className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600" size={14} />
-                  </div>
-                </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full flex items-center justify-center gap-2 font-black uppercase tracking-widest text-xs py-3.5 rounded-full transition-all mt-4 ${
+                loading
+                  ? 'bg-blue-800/50 text-blue-300 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white shadow-xl shadow-blue-900/50 border border-blue-400/40'
+              }`}
+            >
+              {loading ? (
+                <span>Mise à jour en cours...</span>
+              ) : (
+                <>
+                  <HiCheck size={16} />
+                  <span>Enregistrer les Modifications</span>
+                </>
               )}
-
-              <div className="h-px bg-blue-700/40 my-1" />
-
-              {/* Submit */}
-              <motion.button
-                whileHover={{ scale: loading ? 1 : 1.03 }}
-                whileTap={{ scale: loading ? 1 : 0.97 }}
-                type="submit"
-                disabled={loading}
-                className={`w-full flex items-center justify-center gap-2 font-black uppercase tracking-widest text-xs py-3.5 rounded-full transition-all shadow-lg ${
-                  loading
-                    ? 'bg-blue-800/50 text-blue-400 cursor-not-allowed border border-blue-700/30'
-                    : 'bg-blue-600 hover:bg-blue-500 text-white border border-blue-400/30 shadow-blue-900/40'
-                }`}
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                    </svg>
-                    Mise à jour...
-                  </>
-                ) : (
-                  <>
-                    <HiCheck size={16} />
-                    Enregistrer les Modifications
-                  </>
-                )}
-              </motion.button>
-            </form>
-          </div>
+            </button>
+          </form>
         </motion.div>
 
       </div>

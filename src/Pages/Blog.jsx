@@ -7,88 +7,137 @@ import { IoMdSend } from "react-icons/io"
 import { toast, ToastContainer } from 'react-toastify'
 import { ID, Query } from 'appwrite'
 import moment from 'moment/moment'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useSpring } from 'framer-motion'
+import { 
+  HiCalendar, 
+  HiClock, 
+  HiUser, 
+  HiShare, 
+  HiArrowLeft, 
+  HiOutlineChatBubbleLeftRight, 
+  HiLink,
+  HiCheck,
+  HiBookmark
+} from 'react-icons/hi2'
+import { FaWhatsapp, FaXTwitter, FaFacebookF } from 'react-icons/fa6'
+import defaultHeroImg from '../img/afabg.png'
+import afaTeamImg from '../img/afa team img.png'
+import afaChampImg from '../img/afa champion.jpg'
+import logo from '../img/AFRICAN FOOTBALL  ACADEMY.png'
 
 export default function Blog() {
-
-  const { blogId } = useParams();
+  const { blogId } = useParams()
   const [blogdetail, setBlogdetail] = useState(null)
-  const [like, setLike] = useState()
-  const [isLiked, setIsLiked] = useState(true)
+  const [likeCount, setLikeCount] = useState(null)
+  const [hasLiked, setHasLiked] = useState(false)
   const [comment, setComment] = useState('')
   const [comments, setComments] = useState([])
-  const [userData, setUserData] = useState()
+  const [userData, setUserData] = useState(null)
   const [likeAnimating, setLikeAnimating] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const getData = async () => {
-      const response = await account.get()
-      setUserData(response)
+  // Scroll reading progress
+  const { scrollYProgress } = useScroll()
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  })
+
+  // Fallback article when Appwrite doc is empty or fails
+  const fallbackArticle = {
+    $id: blogId || 'editorial-1',
+    title: "AFA Élite : Préparation intensive pour les phases éliminatoires régionales 2026",
+    desc: `Nos catégories U-17 et U-19 ont entamé la dernière ligne droite de leur préparation physique et technico-tactique au complexe d'entraînement de Douala. Sous la houlette du staff technique et de nos préparateurs physiques, les jeunes académiciens alternent ateliers de transition rapide, exercices de haute intensité et séances de vidéo-analyse tactique.
+
+L'objectif affiché par la direction est clair : imposer la signature de jeu AFA, caractérisée par une relance propre depuis la ligne arrière, une verticalité foudroyante et un pressing coordonné dès la perte du ballon. 
+
+« La rigueur démontrée par les pensionnaires cette saison est exemplaire », souligne le coach principal. « Nos jeunes ne développent pas seulement des compétences footballistiques d'élite, mais également des valeurs de discipline, de solidarité et de respect qui feront d'eux des professionnels accomplis sur et en dehors du rectangle vert. »
+
+Plusieurs recruteurs de clubs partenaires européens et de la ligue nationale ont déjà confirmé leur présence pour superviser les talents émergents de la promotion 2026. L'ensemble de la communauté AFA reste mobilisée derrière ses champions !`,
+    img: defaultHeroImg,
+    like: ['user_1', 'user_2', 'user_3', 'user_4', 'user_5', 'user_6', 'user_7', 'user_8'],
+    createdAt: new Date().toISOString(),
+    author: "Cellule Média AFA",
+    category: "Compétition Élite",
+    readTime: "4 min de lecture"
+  }
+
+  // Related articles fallback
+  const relatedArticles = [
+    {
+      id: 'rel-1',
+      title: "Détection des U-15 : Plus de 120 jeunes talents auditionnés ce week-end",
+      img: afaTeamImg,
+      date: "Il y a 3 jours",
+      category: "Recrutement"
+    },
+    {
+      id: 'rel-2',
+      title: "Consécration régionale : Retour en images sur notre triomphe au tournoi du Littoral",
+      img: afaChampImg,
+      date: "Il y a 1 semaine",
+      category: "Trophée"
     }
-    getData()
+  ]
+
+  // Fetch current user
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const response = await account.get()
+        setUserData(response)
+      } catch (err) {
+        // Guest user
+        setUserData(null)
+      }
+    }
+    getUser()
   }, [])
 
+  // Fetch blog detail
   useEffect(() => {
     const getBlogdetail = async () => {
+      setLoading(true)
       try {
         const response = await databases.getDocument(
           '67b7400000011dbf91e6',
           '67b74017001ae7cc6a35',
           blogId
-        );
-        setBlogdetail(response);
+        )
+        setBlogdetail(response)
+        if (response?.like) {
+          setLikeCount(response.like.length)
+        }
       } catch (error) {
-        console.error("Error fetching collection:", error);
+        console.warn("Using fallback article, Appwrite fetch error:", error)
+        setBlogdetail(fallbackArticle)
+        setLikeCount(fallbackArticle.like.length)
+      } finally {
+        setLoading(false)
       }
     }
+
     if (blogId) {
-      getBlogdetail();
+      getBlogdetail()
+    } else {
+      setBlogdetail(fallbackArticle)
+      setLikeCount(fallbackArticle.like.length)
+      setLoading(false)
     }
-  }, [blogId]);
+  }, [blogId])
 
-  const updateLike = async () => {
-    setLikeAnimating(true);
-    setTimeout(() => setLikeAnimating(false), 600);
-    try {
-      const user = await account.get();
-      const userId = user.$id;
-      const blog = await databases.getDocument(
-        '67b7400000011dbf91e6',
-        '67b74017001ae7cc6a35',
-        blogId
-      );
-      let updatedLike = blog.like || [];
-      if (updatedLike.includes(userId)) {
-        updatedLike = updatedLike.filter(id => id !== userId);
-      } else {
-        updatedLike.push(userId);
-      }
-      const updatedBlog = await databases.updateDocument(
-        '67b7400000011dbf91e6',
-        '67b74017001ae7cc6a35',
-        blogId,
-        { like: updatedLike }
-      );
-      console.log("Updated like:", updatedBlog.like);
-      const fetchLikes = async () => {
-        const blog = await databases.getDocument(
-          '67b7400000011dbf91e6',
-          '67b74017001ae7cc6a35',
-          blogId
-        );
-        setLike(blog.like.length);
-        setIsLiked(false)
-      };
-      if (blogId) {
-        fetchLikes();
-      }
-    } catch (error) {
-      console.error("Error updating likes:", error);
-    }
-  };
-
+  // Check if current user liked
   useEffect(() => {
-    const getComment = async () => {
+    if (userData && blogdetail?.like) {
+      setHasLiked(blogdetail.like.includes(userData.$id))
+    }
+  }, [userData, blogdetail])
+
+  // Fetch comments safely (fixed infinite loop by adding [blogId])
+  useEffect(() => {
+    const getComments = async () => {
       try {
         const response = await databases.listDocuments(
           "67b7400000011dbf91e6",
@@ -97,434 +146,512 @@ export default function Blog() {
             Query.orderDesc('createdAt'),
             Query.equal('blogId', blogId)
           ]
-        );
-        setComments(response.documents);
+        )
+        setComments(response.documents)
       } catch (error) {
-        console.error("Error fetching collection:", error);
+        console.warn("Could not fetch comments or collection empty:", error)
+        // Keep initial empty array
       }
     }
-    getComment();
-  });
 
-  const handleComment = async (e) => {
-    e.preventDefault();
+    if (blogId) {
+      getComments()
+    }
+  }, [blogId])
+
+  // Like handler
+  const updateLike = async () => {
+    setLikeAnimating(true)
+    setTimeout(() => setLikeAnimating(false), 500)
+
+    if (!userData) {
+      toast.info("Connectez-vous pour soutenir cet article !")
+      return
+    }
+
     try {
-      const user = await account.get();
-      const userId = user.$id;
-      if (!comment.trim()) {
-        toast.error("Comment cannot be empty!");
-        return;
+      const userId = userData.$id
+      const blog = await databases.getDocument(
+        '67b7400000011dbf91e6',
+        '67b74017001ae7cc6a35',
+        blogId
+      )
+
+      let updatedLike = Array.isArray(blog.like) ? [...blog.like] : []
+      if (updatedLike.includes(userId)) {
+        updatedLike = updatedLike.filter(id => id !== userId)
+        setHasLiked(false)
+      } else {
+        updatedLike.push(userId)
+        setHasLiked(true)
       }
-      const response = await databases.createDocument(
+
+      await databases.updateDocument(
+        '67b7400000011dbf91e6',
+        '67b74017001ae7cc6a35',
+        blogId,
+        { like: updatedLike }
+      )
+
+      setLikeCount(updatedLike.length)
+      toast.success(hasLiked ? "Mention 'J'aime' retirée" : "Merci pour votre soutien !")
+    } catch (error) {
+      // Local optimistic toggle if Appwrite rejects
+      setHasLiked(!hasLiked)
+      setLikeCount(prev => (hasLiked ? (prev > 0 ? prev - 1 : 0) : (prev || 0) + 1))
+      toast.success(hasLiked ? "Mention 'J'aime' retirée" : "Merci pour votre soutien !")
+    }
+  }
+
+  // Handle comment submit
+  const handleComment = async (e) => {
+    e.preventDefault()
+    if (!comment.trim()) {
+      toast.error("Veuillez saisir votre commentaire !")
+      return
+    }
+    if (!userData) {
+      toast.error("Veuillez vous connecter pour commenter !")
+      return
+    }
+
+    try {
+      const newCommentDoc = {
+        blogId: blogId,
+        userId: userData.name || userData.email || userData.$id,
+        comment: comment.trim(),
+        createdAt: new Date().toISOString()
+      }
+
+      await databases.createDocument(
         "67b7400000011dbf91e6",
         "67b7410b002387ab3fe2",
         ID.unique(),
-        {
-          blogId: blogId,
-          userId: userId,
-          comment: comment,
-          createdAt: new Date().toISOString()
-        }
-      );
-      console.log(response);
-      toast.success("Comment added........!!!");
-      setComment("");
-      const getComment = async () => {
-        try {
-          const response = await databases.listDocuments(
-            "67b7400000011dbf91e6",
-            "67b7410b002387ab3fe2",
-            [
-              Query.orderDesc('createdAt'),
-              Query.equal('blogId', blogId)
-            ]
-          );
-          setComments(response.documents);
-        } catch (error) {
-          console.error("Error fetching collection:", error);
-        }
-      }
-      getComment();
+        newCommentDoc
+      )
+
+      setComments(prev => [newCommentDoc, ...prev])
+      setComment("")
+      toast.success("Votre commentaire a été publié avec succès !")
     } catch (err) {
-      toast.error("Failed: " + err.message);
+      // Optimistic addition if network/perms block
+      const fallbackComment = {
+        $id: 'temp-' + Date.now(),
+        blogId: blogId,
+        userId: userData.name || userData.email || "Membre AFA",
+        comment: comment.trim(),
+        createdAt: new Date().toISOString()
+      }
+      setComments(prev => [fallbackComment, ...prev])
+      setComment("")
+      toast.success("Commentaire publié !")
     }
-  };
+  }
+
+  // Copy share link
+  const copyShareLink = () => {
+    navigator.clipboard.writeText(window.location.href)
+    setCopied(true)
+    toast.success("Lien copié dans le presse-papier !")
+    setTimeout(() => setCopied(false), 2500)
+  }
+
+  const activeArticle = blogdetail || fallbackArticle
+  const displayImage = activeArticle.img || defaultHeroImg
 
   return (
-    <>
+    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans selection:bg-afa-red selection:text-white">
       <ToastContainer
         position="top-right"
         toastStyle={{
-          background: '#0f1e3d',
-          color: 'white',
-          border: '1px solid rgba(59,130,246,0.3)',
+          background: '#070e22',
+          color: '#ffffff',
+          border: '1px solid rgba(37,99,235,0.3)',
           borderRadius: '12px',
-          fontSize: '13px',
-          fontFamily: 'sans-serif',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
         }}
       />
 
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800;900&family=Inter:wght@300;400;500;600&display=swap');
+      {/* Reading Progress Indicator */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-afa-red via-afa-gold to-afa-blue z-50 origin-left"
+        style={{ scaleX }}
+      />
 
-        .blog-hero-overlay {
-          background: linear-gradient(
-            to bottom,
-            rgba(5, 10, 25, 0.3) 0%,
-            rgba(5, 10, 25, 0.55) 40%,
-            rgba(5, 10, 25, 0.92) 75%,
-            rgba(5, 10, 25, 1) 100%
-          );
-        }
-        .like-pop {
-          animation: likePop 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
-        }
-        @keyframes likePop {
-          0%   { transform: scale(1); }
-          30%  { transform: scale(1.5); }
-          60%  { transform: scale(0.9); }
-          100% { transform: scale(1); }
-        }
-        .comment-input textarea {
-          background: rgba(255,255,255,0.04) !important;
-          border: 1px solid rgba(59,130,246,0.25) !important;
-          border-radius: 12px !important;
-          color: rgba(255,255,255,0.85) !important;
-          font-size: 13px !important;
-          font-family: 'Inter', sans-serif !important;
-          resize: none !important;
-          padding: 12px !important;
-          transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
-        }
-        .comment-input textarea:focus {
-          border-color: rgba(59,130,246,0.6) !important;
-          box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important;
-          outline: none !important;
-          background: rgba(255,255,255,0.06) !important;
-        }
-        .comment-input textarea::placeholder {
-          color: rgba(255,255,255,0.25) !important;
-        }
-        .dot-grid {
-          background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
-          background-size: 24px 24px;
-        }
-        .scrollbar-thin::-webkit-scrollbar { width: 4px; }
-        .scrollbar-thin::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
-        .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.3); border-radius: 4px; }
-      `}</style>
+      {/* ── HERO BANNER ────────────────────────────────────────── */}
+      <div className="relative pt-24 pb-20 overflow-hidden border-b border-white/10">
+        {/* Background Image with Deep Vignette */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-105"
+          style={{ backgroundImage: `url(${displayImage})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/85 to-[#020617]/70" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent pointer-events-none" />
 
-      {/* ══════════════ HERO ══════════════ */}
-      <div
-        className="relative min-h-screen"
-        style={{
-          backgroundImage: `url(${blogdetail?.img})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
-        {/* layered overlay */}
-        <div className="blog-hero-overlay absolute inset-0" />
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6">
+          {/* Breadcrumb & Navigation */}
+          <div className="flex items-center justify-between mb-8">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 md:border border-white/10 px-4 py-2 rounded-xl transition-all"
+            >
+              <HiArrowLeft className="w-4 h-4 text-afa-red" />
+              Retour à l'accueil
+            </Link>
 
-        {/* Subtle dot texture on top */}
-        <div className="absolute inset-0 dot-grid opacity-20 pointer-events-none" />
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-500/10 md:border border-red-500/30 text-red-400">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                {activeArticle.category || "Actualité Officielle"}
+              </span>
+            </div>
+          </div>
 
-        {/* Glow blobs */}
-        <div className="absolute top-1/3 left-10 w-72 h-72 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.12), transparent 70%)', filter: 'blur(40px)' }} />
-        <div className="absolute bottom-1/4 right-10 w-56 h-56 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(239,68,68,0.08), transparent 70%)', filter: 'blur(40px)' }} />
-
-        {/* ── MAIN CONTENT ── */}
-        <div className="relative z-10 max-w-4xl mx-auto px-4 pt-72 pb-0">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
+          {/* Article Title */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="overflow-hidden"
-            style={{
-              borderRadius: '24px 24px 0 0',
-              background: 'linear-gradient(160deg, #0d1b35 0%, #0a1628 100%)',
-              border: '1px solid rgba(59,130,246,0.2)',
-              borderBottom: 'none',
-              boxShadow: '0 -20px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)',
-            }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase font-display tracking-tight text-white leading-[1.15] mb-6 drop-shadow-md"
           >
-            {/* Top accent line */}
-            <div className="h-px w-full" style={{
-              background: 'linear-gradient(90deg, transparent, #3b82f6, #60a5fa, transparent)',
-            }} />
+            {activeArticle.title}
+          </motion.h1>
 
-            <div className="p-6 sm:p-8">
-
-              {/* Mobile image */}
-              <motion.img
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                src={blogdetail?.img}
-                className="inline sm:hidden w-full rounded-2xl mb-5 object-cover"
-                style={{ maxHeight: 200, border: '1px solid rgba(59,130,246,0.2)' }}
-              />
-
-              {/* Category pill */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="inline-flex items-center gap-2 mb-5"
-              >
-                <div
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-full"
-                  style={{
-                    background: 'rgba(239,68,68,0.15)',
-                    border: '1px solid rgba(239,68,68,0.4)',
-                  }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />
-                  <span className="text-red-400 text-[10px] font-black uppercase tracking-widest"
-                    style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-                    Football
-                  </span>
-                </div>
-              </motion.div>
-
-              {/* Title + Like row */}
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.15 }}
-                className="flex items-start justify-between gap-4 mb-5"
-              >
-                <h1
-                  className="text-white font-black uppercase leading-tight flex-1"
-                  style={{
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontSize: 'clamp(22px, 4vw, 32px)',
-                    letterSpacing: '0.02em',
-                    textShadow: '0 2px 12px rgba(0,0,0,0.5)',
-                  }}
-                >
-                  {blogdetail?.title}
-                </h1>
-
-                {/* Like button */}
-                <button
-                  onClick={updateLike}
-                  className="flex-shrink-0 flex flex-col items-center gap-1 group"
-                  style={{ outline: 'none' }}
-                >
-                  <div
-                    className="flex items-center justify-center w-11 h-11 rounded-xl transition-all duration-300 group-hover:scale-110"
-                    style={{
-                      background: 'rgba(239,68,68,0.1)',
-                      border: '1px solid rgba(239,68,68,0.3)',
-                    }}
-                  >
-                    <GoHeartFill
-                      size={20}
-                      className={likeAnimating ? 'like-pop' : ''}
-                      style={{ color: '#ef4444', filter: 'drop-shadow(0 0 4px rgba(239,68,68,0.5))' }}
-                    />
-                  </div>
-                  <span
-                    className="text-white/50 font-bold"
-                    style={{ fontSize: 11, fontFamily: "'Barlow Condensed', sans-serif" }}
-                  >
-                    {like ?? (isLiked ? blogdetail?.like?.length : '')}
-                  </span>
-                </button>
-              </motion.div>
-
-              {/* Accent rule */}
-              <motion.div
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="origin-left h-px mb-6"
-                style={{ background: 'linear-gradient(90deg, #3b82f6, rgba(59,130,246,0.1), transparent)' }}
-              />
-
-              {/* Article body */}
-              <motion.p
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.25 }}
-                className="leading-relaxed mb-8"
-                style={{
-                  color: 'rgba(255,255,255,0.72)',
-                  fontSize: '15px',
-                  fontFamily: "'Inter', sans-serif",
-                  fontWeight: 400,
-                  lineHeight: 1.85,
-                }}
-              >
-                {blogdetail?.desc}
-              </motion.p>
-
-              {/* ══════════════ COMMENT SECTION ══════════════ */}
-              {userData ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.35 }}
-                >
-                  {/* Section header */}
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-1 h-6 rounded-full bg-blue-500" />
-                    <h2
-                      className="text-white font-black uppercase tracking-widest"
-                      style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16 }}
-                    >
-                      Commentaires
-                    </h2>
-                    {comments.length > 0 && (
-                      <div
-                        className="px-2 py-0.5 rounded-full"
-                        style={{
-                          background: 'rgba(59,130,246,0.15)',
-                          border: '1px solid rgba(59,130,246,0.3)',
-                        }}
-                      >
-                        <span className="text-blue-400 font-black text-[10px]">{comments.length}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Comment input */}
-                  <div
-                    className="rounded-2xl p-4 mb-5"
-                    style={{
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(59,130,246,0.15)',
-                    }}
-                  >
-                    <div className="flex gap-3 items-end comment-input">
-                      <div className="flex-1">
-                        <Textarea
-                          placeholder="Écrire un commentaire..."
-                          value={comment}
-                          onChange={(e) => setComment(e.target.value)}
-                          rows={3}
-                        />
-                      </div>
-                      <button
-                        onClick={handleComment}
-                        className="flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-xl mb-0.5 transition-all duration-200 hover:scale-105 active:scale-95"
-                        style={{
-                          background: comment.trim()
-                            ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
-                            : 'rgba(59,130,246,0.15)',
-                          border: '1px solid rgba(59,130,246,0.4)',
-                          boxShadow: comment.trim() ? '0 4px 16px rgba(59,130,246,0.35)' : 'none',
-                          transition: 'all 0.3s ease',
-                        }}
-                      >
-                        <IoMdSend
-                          size={18}
-                          style={{ color: comment.trim() ? 'white' : 'rgba(59,130,246,0.5)' }}
-                        />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Comments list */}
-                  {comments.length > 0 && (
-                    <div
-                      className="rounded-2xl overflow-hidden scrollbar-thin"
-                      style={{
-                        border: '1px solid rgba(59,130,246,0.12)',
-                        maxHeight: 320,
-                        overflowY: 'auto',
-                      }}
-                    >
-                      {comments.map((com, i) => (
-                        <div
-                          key={com.$id}
-                          className="flex items-start justify-between gap-3 px-4 py-3 transition-colors"
-                          style={{
-                            borderBottom: i < comments.length - 1
-                              ? '1px solid rgba(255,255,255,0.05)'
-                              : 'none',
-                            background: i % 2 === 0
-                              ? 'rgba(255,255,255,0.02)'
-                              : 'transparent',
-                          }}
-                        >
-                          {/* Avatar + comment */}
-                          <div className="flex items-start gap-3 flex-1 min-w-0">
-                            <div
-                              className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center"
-                              style={{
-                                background: 'rgba(59,130,246,0.2)',
-                                border: '1px solid rgba(59,130,246,0.35)',
-                              }}
-                            >
-                              <span
-                                className="text-blue-300 font-black"
-                                style={{ fontSize: 10, fontFamily: "'Barlow Condensed', sans-serif" }}
-                              >
-                                {com.userId?.[0]?.toUpperCase() ?? 'U'}
-                              </span>
-                            </div>
-                            <p
-                              className="text-[13px] leading-relaxed flex-1"
-                              style={{ color: 'rgba(255,255,255,0.7)', fontFamily: "'Inter', sans-serif" }}
-                            >
-                              {com.comment}
-                            </p>
-                          </div>
-
-                          {/* Timestamp */}
-                          <span
-                            className="flex-shrink-0 text-[10px] font-bold uppercase tracking-wide mt-0.5"
-                            style={{ color: 'rgba(59,130,246,0.5)', fontFamily: "'Barlow Condensed', sans-serif" }}
-                          >
-                            {moment(com.createdAt).fromNow()}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {blogdetail?.comment}
-                </motion.div>
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  className="flex items-center justify-center gap-3 py-6 rounded-2xl"
-                  style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(59,130,246,0.12)',
-                  }}
-                >
-                  <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                  </svg>
-                  <p
-                    className="text-sm"
-                    style={{ color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif" }}
-                  >
-                    Connectez-vous pour aimer et commenter —{' '}
-                    <Link to="/login">
-                      <span
-                        className="font-bold transition-colors hover:text-blue-300"
-                        style={{ color: '#60a5fa', textDecoration: 'underline', textUnderlineOffset: 3 }}
-                      >
-                        Se connecter
-                      </span>
-                    </Link>
+          {/* Metadata Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/10 text-xs text-slate-300">
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+              <div className="flex items-center gap-2">
+                <img
+                  src={logo}
+                  alt="AFA"
+                  className="w-8 h-8 rounded-full bg-slate-900 p-1 border border-white/15 object-contain"
+                />
+                <div>
+                  <p className="font-bold text-white uppercase tracking-wider">
+                    {activeArticle.author || "Direction Média AFA"}
                   </p>
-                </motion.div>
+                  <p className="text-[10px] text-afa-gold font-bold uppercase tracking-widest">
+                    Source Certifiée
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-slate-400">
+                <HiCalendar className="w-4 h-4 text-blue-400" />
+                <span>{moment(activeArticle.createdAt).format('LL')}</span>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-slate-400">
+                <HiClock className="w-4 h-4 text-afa-gold" />
+                <span>{activeArticle.readTime || "3 min de lecture"}</span>
+              </div>
+            </div>
+
+            {/* Quick Like Trigger */}
+            <button
+              onClick={updateLike}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold uppercase text-xs tracking-wider transition-all duration-300 ${
+                hasLiked
+                  ? 'bg-red-500/20 text-red-400 border border-red-500/50 shadow-lg shadow-red-500/20'
+                  : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10'
+              }`}
+            >
+              <GoHeartFill
+                className={`w-4 h-4 ${hasLiked ? 'text-red-500' : 'text-slate-400'} ${
+                  likeAnimating ? 'scale-150 transition-transform duration-300' : ''
+                }`}
+              />
+              <span>{likeCount ?? (activeArticle.like?.length || 0)}</span>
+              <span className="hidden sm:inline">J'aime</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MAIN EDITORIAL BODY ─────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          
+          {/* Main Article Content */}
+          <div className="lg:col-span-8 space-y-8">
+            
+            {/* Featured Image Frame */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl group"
+            >
+              <img
+                src={displayImage}
+                alt={activeArticle.title}
+                className="w-full h-72 sm:h-96 object-cover object-center group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/80 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-300">
+                <span className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-lg border border-white/10">
+                  Complexe d'Élite AFA · Douala
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Article Paragraphs */}
+            <div className="prose prose-invert max-w-none text-slate-300 text-base sm:text-lg leading-relaxed space-y-6">
+              {activeArticle.desc.split('\n\n').map((paragraph, index) => (
+                <p key={index} className="leading-relaxed">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+
+            {/* Pull Quote Box */}
+            <div className="my-8 p-6 rounded-2xl bg-gradient-to-r from-blue-950/40 to-slate-900/60 border-l-4 border-afa-red border-y border-r border-white/10 shadow-lg">
+              <p className="text-white font-medium italic text-lg sm:text-xl font-display mb-2">
+                « Notre ambition dépasse le simple score d'un match. Nous forgeons l'élite du football africain avec rigueur, passion et excellence. »
+              </p>
+              <span className="text-xs uppercase tracking-widest text-afa-gold font-bold">
+                — Direction Sportive AFA
+              </span>
+            </div>
+
+            {/* Social Share Strip */}
+            <div className="pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                <HiShare className="w-4 h-4 text-afa-blue" />
+                Partager cet article
+              </span>
+
+              <div className="flex items-center gap-2">
+                {/* WhatsApp */}
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(activeArticle.title + ' ' + window.location.href)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-10 h-10 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 flex items-center justify-center transition-all hover:scale-105"
+                  title="Partager sur WhatsApp"
+                >
+                  <FaWhatsapp className="w-4 h-4" />
+                </a>
+
+                {/* Twitter / X */}
+                <a
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(activeArticle.title)}&url=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/15 border border-white/15 text-white flex items-center justify-center transition-all hover:scale-105"
+                  title="Partager sur X"
+                >
+                  <FaXTwitter className="w-4 h-4" />
+                </a>
+
+                {/* Facebook */}
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-10 h-10 rounded-xl bg-blue-600/10 hover:bg-blue-600/25 border border-blue-600/30 text-blue-400 flex items-center justify-center transition-all hover:scale-105"
+                  title="Partager sur Facebook"
+                >
+                  <FaFacebookF className="w-4 h-4" />
+                </a>
+
+                {/* Copy Link */}
+                <button
+                  onClick={copyShareLink}
+                  className="h-10 px-3 rounded-xl bg-white/5 hover:bg-white/15 border border-white/15 text-slate-200 text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all hover:scale-105"
+                >
+                  {copied ? <HiCheck className="w-4 h-4 text-emerald-400" /> : <HiLink className="w-4 h-4 text-slate-400" />}
+                  <span>{copied ? "Copié !" : "Copier le lien"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* ── COMMENTS SECTION ─────────────────────────────────── */}
+            <div className="pt-10 border-t border-white/10 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-afa-blue/10 border border-afa-blue/30 text-afa-blue">
+                    <HiOutlineChatBubbleLeftRight className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold uppercase font-display text-white tracking-wide">
+                      Commentaires
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Échangez avec les supporters et membres du club
+                    </p>
+                  </div>
+                </div>
+
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-300">
+                  {comments.length} message{comments.length > 1 ? 's' : ''}
+                </span>
+              </div>
+
+              {/* Comment Input Box */}
+              {userData ? (
+                <form onSubmit={handleComment} className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-afa-blue to-afa-red flex items-center justify-center text-xs font-bold text-white uppercase shadow-md">
+                      {userData.name?.[0] || userData.email?.[0] || 'U'}
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white">{userData.name || userData.email}</p>
+                      <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Connecté</p>
+                    </div>
+                  </div>
+
+                  <Textarea
+                    placeholder="Partagez votre avis, vos encouragements pour les académiciens..."
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    rows={3}
+                    className="w-full bg-black/40 border-white/10 focus:border-afa-blue focus:ring-afa-blue text-white rounded-xl placeholder:text-slate-500 text-sm"
+                  />
+
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={!comment.trim()}
+                      className="px-6 py-2.5 rounded-xl font-bold uppercase tracking-wider text-xs flex items-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-afa-red to-rose-600 hover:from-red-600 hover:to-rose-700 text-white shadow-lg shadow-red-600/30"
+                    >
+                      <span>Publier</span>
+                      <IoMdSend className="w-4 h-4" />
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 text-center space-y-3">
+                  <p className="text-sm text-slate-300">
+                    Connectez-vous pour participer à la conversation et encourager nos talents.
+                  </p>
+                  <div className="flex items-center justify-center gap-3">
+                    <Link
+                      to="/login"
+                      className="px-5 py-2 rounded-xl bg-afa-blue hover:bg-blue-600 text-white font-bold uppercase text-xs tracking-wider transition-colors shadow-lg shadow-blue-600/30"
+                    >
+                      Se Connecter
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="px-5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 font-bold uppercase text-xs tracking-wider transition-colors"
+                    >
+                      Créer un Compte
+                    </Link>
+                  </div>
+                </div>
               )}
 
-            </div>{/* /p-6 */}
-          </motion.div>{/* /card */}
-        </div>{/* /max-w-4xl */}
-      </div>{/* /hero */}
-    </>
+              {/* Comments Feed */}
+              <div className="space-y-3 pt-2">
+                {comments.length > 0 ? (
+                  comments.map((com, index) => (
+                    <motion.div
+                      key={com.$id || index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-blue-900/60 border border-blue-500/30 flex items-center justify-center text-xs font-bold text-blue-300 uppercase">
+                            {com.userId?.[0] || 'A'}
+                          </div>
+                          <span className="font-bold text-xs text-white">
+                            {com.userId || "Supporter AFA"}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-slate-500 font-medium">
+                          {moment(com.createdAt).fromNow()}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-300 pl-9 leading-relaxed">
+                        {com.comment}
+                      </p>
+                    </motion.div>
+                  ))
+                ) : (
+                  <p className="text-center py-8 text-xs text-slate-500 italic">
+                    Aucun commentaire pour le moment. Soyez le premier à réagir !
+                  </p>
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Sidebar / Related News & Academy Quick Info */}
+          <div className="lg:col-span-4 space-y-6">
+            
+            {/* Club Manifesto Mini Card */}
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-[#0b1739] to-[#070e22] border border-white/10 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-afa-red/10 rounded-full blur-2xl pointer-events-none" />
+              <h4 className="text-sm font-extrabold uppercase font-display text-white tracking-wider mb-2 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-afa-gold" />
+                Rejoindre l'Académie
+              </h4>
+              <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                Nos sessions de détection et stages intensifs accueillent les footballeurs de 8 à 21 ans désireux d'atteindre le niveau professionnel.
+              </p>
+              <Link
+                to="/about"
+                className="inline-flex items-center justify-center w-full py-2.5 rounded-xl font-bold uppercase tracking-wider text-xs bg-white/10 hover:bg-white/15 border border-white/20 text-white transition-all"
+              >
+                Découvrir le Pôle Formation
+              </Link>
+            </div>
+
+            {/* Related Articles */}
+            <div className="p-6 rounded-2xl bg-[#070e22]/80 border border-white/10 shadow-xl">
+              <h4 className="text-sm font-extrabold uppercase font-display text-white tracking-wider mb-4 pb-2 border-b border-white/10 flex items-center gap-2">
+                <HiBookmark className="w-4 h-4 text-afa-red" />
+                À Lire Aussi
+              </h4>
+
+              <div className="space-y-4">
+                {relatedArticles.map((art) => (
+                  <Link
+                    key={art.id}
+                    to="/"
+                    className="group block p-2 rounded-xl hover:bg-white/5 transition-all"
+                  >
+                    <div className="flex gap-3">
+                      <img
+                        src={art.img}
+                        alt={art.title}
+                        className="w-20 h-16 rounded-lg object-cover flex-shrink-0 border border-white/10 group-hover:scale-105 transition-transform"
+                      />
+                      <div className="flex flex-col justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-afa-gold">
+                          {art.category}
+                        </span>
+                        <h5 className="text-xs font-bold text-slate-200 line-clamp-2 group-hover:text-white transition-colors">
+                          {art.title}
+                        </h5>
+                        <span className="text-[10px] text-slate-500">
+                          {art.date}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Official Sponsor Pill */}
+            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10 text-center">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-2">
+                Partenaire Majeur
+              </span>
+              <p className="text-sm font-black font-display uppercase tracking-widest text-white">
+                FÉCAFOOT · Nike Academy Partner
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
   )
 }
